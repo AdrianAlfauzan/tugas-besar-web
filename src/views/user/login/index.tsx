@@ -138,9 +138,17 @@ const LoginView: React.FC = () => {
                 {isLoading ? <Loader size={25} /> : "Login"}
               </Button>
             </form>
-            <Button onClick={handleGoogle} variant="outlined" className="w-full py-2 px-4 text-white font-medium">
-              {isLoadingGoogle ? <Loader size={25} /> : "Login With Google"}
+            <Button onClick={handleGoogle} variant="outlined" className="w-full py-2 px-4 text-white font-medium flex items-center justify-center gap-2">
+              {isLoadingGoogle ? (
+                <Loader size={25} />
+              ) : (
+                <>
+                  <Image src="/icon/googleIcon.png" alt="Google Icon" width={20} height={20} />
+                  Login With Google
+                </>
+              )}
             </Button>
+
             <Typography variant="body2" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               Haven&apos;t an account?
               <Button onClick={handleRedirect} variant="outlined">

@@ -48,6 +48,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   width: "100%",
   "& .MuiInputBase-input": {
     padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
     [theme.breakpoints.up("sm")]: {
@@ -68,7 +69,7 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const DashboardAdminPage = () => {
+const DaftarMahasiswaPage = () => {
   const [openDialog, setOpenDialog] = React.useState(false);
 
   const handleClickOpenDialog = () => {
@@ -79,11 +80,11 @@ const DashboardAdminPage = () => {
     setOpenDialog(false);
   };
 
-  const [position, setPosition] = React.useState("");
-  const handleChange = (event: SelectChangeEvent) => {
-    setPosition(event.target.value as string);
-  };
+  const [years, setYears] = React.useState("");
 
+  const handleChange = (event: SelectChangeEvent) => {
+    setYears(event.target.value as string);
+  };
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -96,7 +97,7 @@ const DashboardAdminPage = () => {
     <div className="p-4 ">
       <Grid container spacing={1} className="bg-slate-800 rounded-md mb-4">
         <Grid size={4} className="  rounded max-w-full  text-center flex items-center justify-center">
-          Daftar Admin
+          Daftar Mahasiswa
         </Grid>
         <Grid size={4} className="  rounded max-w-full flex items-center">
           <Toolbar>
@@ -109,11 +110,11 @@ const DashboardAdminPage = () => {
           </Toolbar>
           <Box sx={{ minWidth: 180 }}>
             <FormControl size="small" fullWidth>
-              <InputLabel id="select-position">Jabatan Dosen</InputLabel>
-              <Select labelId="select-position" id="select-position" value={position} label="Jabatan Dosen" onChange={handleChange}>
-                <MenuItem value="Dosen Pembimbing">Dosen Pembimbing</MenuItem>
-                <MenuItem value="Koordinator TA">Koordinator TA</MenuItem>
-                <MenuItem value="Dosen Penguji">Dosen Penguji</MenuItem>
+              <InputLabel id="select-year">Year</InputLabel>
+              <Select labelId="select-year" id="select-year" value={years} label="Year" onChange={handleChange}>
+                <MenuItem value={2020}>2020</MenuItem>
+                <MenuItem value={2021}>2021</MenuItem>
+                <MenuItem value={2022}>2022</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -142,13 +143,13 @@ const DashboardAdminPage = () => {
       <Grid container spacing={1} className="bg-slate-800 rounded-md  ">
         <Grid size={12} className="  p-2 max-w-full  text-center flex items-center justify-center border-b-2 border-white">
           <Grid size={4} className="  rounded max-w-full  text-center flex items-center justify-center">
-            NIDN
+            Nim Mahasiswa
           </Grid>
           <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            Nama Dosen
+            Nama Mahasiswa
           </Grid>
           <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            Jabatan Dosen
+            Jurusan Mahasiswa
           </Grid>
           <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
             Action
@@ -156,69 +157,13 @@ const DashboardAdminPage = () => {
         </Grid>
         <Grid size={12} className=" p-2  max-w-full  text-center flex items-center justify-center">
           <Grid size={4} className="   max-w-full  text-center flex items-center justify-center">
-            1234545
+            2250081020
           </Grid>
           <Grid size={4} className="border-l-2 border-white   max-w-full  text-center flex items-center justify-center">
             Adrian Kurniawan
           </Grid>
           <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            Dosen Pembimbing
-          </Grid>
-          <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            <div>
-              <IconButton className="p-0" aria-label="delete" onClick={handleClickOpenDialog}>
-                <DeleteIcon />
-              </IconButton>
-              <Dialog open={openDialog} TransitionComponent={Transition} keepMounted onClose={handleCloseDialog} aria-describedby="alert-dialog-slide-description">
-                <DialogTitle>{"Apakah Anda Ingin Menghapus Data?"}</DialogTitle>
-                <DialogContent>
-                  <DialogContentText id="alert-dialog-slide-description">Data ini mungkin bersifat sensitive, anda yakin akan menghapus data ini?</DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleCloseDialog}>Disagree</Button>
-                  <Button onClick={handleCloseDialog}>Agree</Button>
-                </DialogActions>
-              </Dialog>
-            </div>
-          </Grid>
-        </Grid>
-        <Grid size={12} className=" p-2  max-w-full  text-center flex items-center justify-center">
-          <Grid size={4} className="   max-w-full  text-center flex items-center justify-center">
-            097823
-          </Grid>
-          <Grid size={4} className="border-l-2 border-white   max-w-full  text-center flex items-center justify-center">
-            Adrian Musa Alfauzan
-          </Grid>
-          <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            Koordinator TA
-          </Grid>
-          <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            <div>
-              <IconButton className="p-0" aria-label="delete" onClick={handleClickOpenDialog}>
-                <DeleteIcon />
-              </IconButton>
-              <Dialog open={openDialog} TransitionComponent={Transition} keepMounted onClose={handleCloseDialog} aria-describedby="alert-dialog-slide-description">
-                <DialogTitle>{"Apakah Anda Ingin Menghapus Data?"}</DialogTitle>
-                <DialogContent>
-                  <DialogContentText id="alert-dialog-slide-description">Data ini mungkin bersifat sensitive, anda yakin akan menghapus data ini?</DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleCloseDialog}>Disagree</Button>
-                  <Button onClick={handleCloseDialog}>Agree</Button>
-                </DialogActions>
-              </Dialog>
-            </div>
-          </Grid>
-        </Grid>
-        <Grid size={12} className=" p-2  max-w-full  text-center flex items-center justify-center">
-          <Grid size={4} className="   max-w-full  text-center flex items-center justify-center">
-            2250081020
-          </Grid>
-          <Grid size={4} className="border-l-2 border-white   max-w-full  text-center flex items-center justify-center">
-            Adrian Alfauzan
-          </Grid>
-          <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            Dosen Penguji
+            Informatika
           </Grid>
           <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
             <div>
@@ -243,4 +188,4 @@ const DashboardAdminPage = () => {
   );
 };
 
-export default DashboardAdminPage;
+export default DaftarMahasiswaPage;

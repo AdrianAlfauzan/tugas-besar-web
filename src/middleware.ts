@@ -7,7 +7,7 @@ export async function middleware(req: NextRequest) {
 
   // Rute yang memerlukan login
   const userRoutes = ["/user/testt", "/user/teststst"];
-  const adminRoutes = ["/admin/beranda", "/admin/dashboard"];
+  // const adminRoutes = ["/admin/beranda", "/admin/dashboard"];
 
   const token = await getToken({
     req,
@@ -24,9 +24,9 @@ export async function middleware(req: NextRequest) {
   }
 
   // Jika token ada dan pengguna mencoba mengakses admin route
-  if (adminRoutes.includes(pathname)) {
-    return NextResponse.redirect(new URL("/admin", req.url));
-  }
+  // if (adminRoutes.includes(pathname)) {
+  //   return NextResponse.redirect(new URL("/admin", req.url));
+  // }
 
   return NextResponse.next();
 }

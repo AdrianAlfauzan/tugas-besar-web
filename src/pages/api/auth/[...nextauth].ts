@@ -48,7 +48,7 @@ const authOptions: NextAuthOptions = {
         session.user.email = token.email;
       }
       if ("fullname" in token) {
-        session.user.fullname = token.fullname;
+        session.user.fullname = token.fullname || "Tidak ada Data";
       }
       if ("image" in token) {
         session.user.image = token.image;

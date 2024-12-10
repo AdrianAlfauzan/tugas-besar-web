@@ -33,3 +33,12 @@
     transform: translate(0, 0);
   }
 }
+/* Menyembunyikan tulisan TOOLPAD di navbar admin saja */
+#admin-root .MuiAppBar-root .MuiTypography-root {
+  display: none;
+}
+
+/* Mengganti tulisan TOOLPAD di navbar admin saja */
+#admin-root .MuiAppBar-root .MuiTypography-root::before {
+  content: "Nama Baru"; /* Ganti "Nama Baru" dengan nama yang diinginkan */
+}

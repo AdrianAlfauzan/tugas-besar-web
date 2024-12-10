@@ -84,7 +84,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ handleNavigate }) => {
           <MenuItem
             onClick={() => {
               handleClose();
-              handleNavigate("/civitas/PilihDosen");
+              handleNavigate("user/activity/PilihDosenPembimbing");
             }}
             sx={{
               display: "flex",
@@ -97,12 +97,12 @@ const MenuItems: React.FC<MenuItemsProps> = ({ handleNavigate }) => {
               },
             }}
           >
-            Pilih Dosen
+            Pilih Dosen Pembimbing
           </MenuItem>
           <MenuItem
             onClick={() => {
               handleClose();
-              handleNavigate("/civitas/StatusPembayaran");
+              handleNavigate("user/activity/StatusPembayaran");
             }}
             sx={{
               display: "flex",
@@ -120,7 +120,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ handleNavigate }) => {
           <MenuItem
             onClick={() => {
               handleClose();
-              handleNavigate("/civitas/UploadBukti");
+              handleNavigate("user/activity/UploadBukti");
             }}
             sx={{
               display: "flex",
@@ -175,7 +175,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ handleNavigate }) => {
           <MenuItem
             onClick={() => {
               handleClose();
-              handleNavigate("/civitas/PilihDosen");
+              handleNavigate("user/activity/PilihDosen");
             }}
             sx={{
               display: "flex",
@@ -193,7 +193,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ handleNavigate }) => {
           <MenuItem
             onClick={() => {
               handleClose();
-              handleNavigate("/civitas/StatusPembayaran");
+              handleNavigate("user/activity/StatusPembayaran");
             }}
             sx={{
               display: "flex",

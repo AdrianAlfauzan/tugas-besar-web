@@ -20,9 +20,9 @@ import Loader from "@/utils/Loader";
 import useScroll from "@/hooks/frontend/useScroll";
 
 // Import Subcomponents
-import NavbarLogo from "@/components/layout/Navbar/components/NavbarLogo";
-import MenuItems from "@/components/layout/Navbar/components/MenuItems";
-import UserMenu from "@/components/layout/Navbar/components/UserMenu";
+import NavbarLogo from "@/components/layout/user/Navbar/components/NavbarLogo";
+import MenuItems from "@/components/layout/user/Navbar/components/MenuItems";
+import UserMenu from "@/components/layout/user/Navbar/components/UserMenu";
 
 function Navbar() {
   const [toggleNavMenu, setToggleNavMenu] = useState<null | HTMLElement>(null);
@@ -121,7 +121,7 @@ function Navbar() {
               signOut={signOut}
             />
           </Box>
-          {isLoading ? <Loader size={1} /> : data ? <Typography>{data.user?.fullname}</Typography> : <Typography>Tidak ada data Nama</Typography>}
+          {isLoading ? <Loader size={1} /> : data ? <Typography>{data.user?.fullname}</Typography> : null}
         </Toolbar>
       </Container>
     </AppBar>
