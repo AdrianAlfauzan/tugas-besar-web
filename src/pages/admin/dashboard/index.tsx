@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Grid from "@mui/material/Grid2";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
@@ -70,8 +70,10 @@ const Transition = React.forwardRef(function Transition(
 
 const DashboardAdminPage = () => {
   const [openDialog, setOpenDialog] = React.useState(false);
+  const [selectedAdmin, setSelectedAdmin] = useState<any | null>(null);
 
-  const handleClickOpenDialog = () => {
+  const handleClickOpenDialog = (admin: any) => {
+    setSelectedAdmin(admin);
     setOpenDialog(true);
   };
 
@@ -92,6 +94,19 @@ const DashboardAdminPage = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const adminData = [
+    { id: 1, nidn: "1234545", name: "Adrian Kurniawan", jabatanDosen: "DSE" },
+    { id: 2, nidn: "097823", name: "Adrian Musa Alfauzan", jabatanDosen: "AIG" },
+    { id: 3, nidn: "2250081020", name: "Adrian Alfauzan", jabatanDosen: "DSE" },
+    { id: 4, nidn: "2250081020", name: "Adrian Alfauzan", jabatanDosen: "DSE" },
+  ];
+
+  const handleDeleteAdmin = () => {
+    console.log("Deleting Admin:", selectedAdmin);
+    setOpenDialog(false);
+  };
+
   return (
     <div className="p-4 ">
       <Grid container spacing={1} className="bg-slate-800 rounded-md mb-4">
@@ -154,90 +169,34 @@ const DashboardAdminPage = () => {
             Action
           </Grid>
         </Grid>
-        <Grid size={12} className=" p-2  max-w-full  text-center flex items-center justify-center">
-          <Grid size={4} className="   max-w-full  text-center flex items-center justify-center">
-            1234545
-          </Grid>
-          <Grid size={4} className="border-l-2 border-white   max-w-full  text-center flex items-center justify-center">
-            Adrian Kurniawan
-          </Grid>
-          <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            Dosen Pembimbing
-          </Grid>
-          <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            <div>
-              <IconButton className="p-0" aria-label="delete" onClick={handleClickOpenDialog}>
+        {adminData.map((admin) => (
+          <Grid key={admin.id} size={12} className="p-2 max-w-full text-center flex items-center justify-center">
+            <Grid size={4} className="max-w-full text-center flex items-center justify-center">
+              {admin.nidn}
+            </Grid>
+            <Grid size={4} className="border-l-2 border-white max-w-full text-center flex items-center justify-center">
+              {admin.name}
+            </Grid>
+            <Grid size={4} className="border-l-2 border-white max-w-full text-center flex items-center justify-center">
+              {admin.jabatanDosen}
+            </Grid>
+            <Grid size={4} className="border-l-2 border-white max-w-full text-center flex items-center justify-center">
+              <IconButton className="p-0" aria-label="delete" onClick={() => handleClickOpenDialog(admin)}>
                 <DeleteIcon />
               </IconButton>
-              <Dialog open={openDialog} TransitionComponent={Transition} keepMounted onClose={handleCloseDialog} aria-describedby="alert-dialog-slide-description">
-                <DialogTitle>{"Apakah Anda Ingin Menghapus Data?"}</DialogTitle>
-                <DialogContent>
-                  <DialogContentText id="alert-dialog-slide-description">Data ini mungkin bersifat sensitive, anda yakin akan menghapus data ini?</DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleCloseDialog}>Disagree</Button>
-                  <Button onClick={handleCloseDialog}>Agree</Button>
-                </DialogActions>
-              </Dialog>
-            </div>
+            </Grid>
           </Grid>
-        </Grid>
-        <Grid size={12} className=" p-2  max-w-full  text-center flex items-center justify-center">
-          <Grid size={4} className="   max-w-full  text-center flex items-center justify-center">
-            097823
-          </Grid>
-          <Grid size={4} className="border-l-2 border-white   max-w-full  text-center flex items-center justify-center">
-            Adrian Musa Alfauzan
-          </Grid>
-          <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            Koordinator TA
-          </Grid>
-          <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            <div>
-              <IconButton className="p-0" aria-label="delete" onClick={handleClickOpenDialog}>
-                <DeleteIcon />
-              </IconButton>
-              <Dialog open={openDialog} TransitionComponent={Transition} keepMounted onClose={handleCloseDialog} aria-describedby="alert-dialog-slide-description">
-                <DialogTitle>{"Apakah Anda Ingin Menghapus Data?"}</DialogTitle>
-                <DialogContent>
-                  <DialogContentText id="alert-dialog-slide-description">Data ini mungkin bersifat sensitive, anda yakin akan menghapus data ini?</DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleCloseDialog}>Disagree</Button>
-                  <Button onClick={handleCloseDialog}>Agree</Button>
-                </DialogActions>
-              </Dialog>
-            </div>
-          </Grid>
-        </Grid>
-        <Grid size={12} className=" p-2  max-w-full  text-center flex items-center justify-center">
-          <Grid size={4} className="   max-w-full  text-center flex items-center justify-center">
-            2250081020
-          </Grid>
-          <Grid size={4} className="border-l-2 border-white   max-w-full  text-center flex items-center justify-center">
-            Adrian Alfauzan
-          </Grid>
-          <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            Dosen Penguji
-          </Grid>
-          <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            <div>
-              <IconButton className="p-0" aria-label="delete" onClick={handleClickOpenDialog}>
-                <DeleteIcon />
-              </IconButton>
-              <Dialog open={openDialog} TransitionComponent={Transition} keepMounted onClose={handleCloseDialog} aria-describedby="alert-dialog-slide-description">
-                <DialogTitle>{"Apakah Anda Ingin Menghapus Data?"}</DialogTitle>
-                <DialogContent>
-                  <DialogContentText id="alert-dialog-slide-description">Data ini mungkin bersifat sensitive, anda yakin akan menghapus data ini?</DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleCloseDialog}>Disagree</Button>
-                  <Button onClick={handleCloseDialog}>Agree</Button>
-                </DialogActions>
-              </Dialog>
-            </div>
-          </Grid>
-        </Grid>
+        ))}
+        <Dialog open={openDialog} TransitionComponent={Transition} keepMounted onClose={handleCloseDialog} aria-describedby="alert-dialog-slide-description">
+          <DialogTitle>{"Apakah Anda Ingin Menghapus Data?"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-slide-description">Data ini mungkin bersifat sensitive, anda yakin akan menghapus data ini?</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>Disagree</Button>
+            <Button onClick={handleDeleteAdmin}>Agree</Button>
+          </DialogActions>
+        </Dialog>
       </Grid>
     </div>
   );

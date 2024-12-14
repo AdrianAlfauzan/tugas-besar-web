@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import Grid from "@mui/material/Grid2";
 import Button from "@mui/material/Button";
-import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { styled, alpha } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
@@ -71,8 +70,17 @@ const Transition = React.forwardRef(function Transition(
 
 const DaftarMahasiswaPage = () => {
   const [openDialog, setOpenDialog] = React.useState(false);
+  const [selectedMahasiswa, setSelectedMahasiswa] = useState<any | null>(null);
 
-  const handleClickOpenDialog = () => {
+  const mahasiswaData = [
+    { id: 1, nim: "1234545", name: "Adrian Kurniawan", jabatanDosen: "Informatika" },
+    { id: 2, nim: "097823", name: "Adrian Musa Alfauzan", jabatanDosen: "Informatika" },
+    { id: 3, nim: "2250081020", name: "Adrian Alfauzan", jabatanDosen: "Informatika" },
+    { id: 4, nim: "2250081020", name: "Adrian Alfauzan", jabatanDosen: "Informatika" },
+  ];
+
+  const handleClickOpenDialog = (mahasiswa: any) => {
+    setSelectedMahasiswa(mahasiswa);
     setOpenDialog(true);
   };
 
@@ -85,13 +93,10 @@ const DaftarMahasiswaPage = () => {
   const handleChange = (event: SelectChangeEvent) => {
     setYears(event.target.value as string);
   };
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
+
+  const handleDeleteMahasiswa = () => {
+    console.log("Deleting Mahasiswa:", selectedMahasiswa);
+    setOpenDialog(false);
   };
   return (
     <div className="p-4 ">
@@ -119,26 +124,6 @@ const DaftarMahasiswaPage = () => {
             </FormControl>
           </Box>
         </Grid>
-        <Grid size={4} className="p-4  rounded max-w-full  ">
-          <div className="flex justify-center ">
-            <Button className="bg-cyan-600" id="basic-button" aria-controls={open ? "basic-menu" : undefined} aria-haspopup="true" aria-expanded={open ? "true" : undefined} onClick={handleClick}>
-              Tambah Admin
-            </Button>
-            <Menu
-              id="basic-menu"
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              MenuListProps={{
-                "aria-labelledby": "basic-button",
-              }}
-            >
-              <MenuItem onClick={handleClose}>Dosen Pembimbing</MenuItem>
-              <MenuItem onClick={handleClose}>Koordinator TA</MenuItem>
-              <MenuItem onClick={handleClose}>Dosen Penguji</MenuItem>
-            </Menu>
-          </div>
-        </Grid>
       </Grid>
       <Grid container spacing={1} className="bg-slate-800 rounded-md  ">
         <Grid size={12} className="  p-2 max-w-full  text-center flex items-center justify-center border-b-2 border-white">
@@ -155,34 +140,34 @@ const DaftarMahasiswaPage = () => {
             Action
           </Grid>
         </Grid>
-        <Grid size={12} className=" p-2  max-w-full  text-center flex items-center justify-center">
-          <Grid size={4} className="   max-w-full  text-center flex items-center justify-center">
-            2250081020
-          </Grid>
-          <Grid size={4} className="border-l-2 border-white   max-w-full  text-center flex items-center justify-center">
-            Adrian Kurniawan
-          </Grid>
-          <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            Informatika
-          </Grid>
-          <Grid size={4} className=" border-l-2 border-white  max-w-full  text-center flex items-center justify-center">
-            <div>
-              <IconButton className="p-0" aria-label="delete" onClick={handleClickOpenDialog}>
+        {mahasiswaData.map((mahasiswa) => (
+          <Grid key={mahasiswa.id} size={12} className="p-2 max-w-full text-center flex items-center justify-center">
+            <Grid size={4} className="max-w-full text-center flex items-center justify-center">
+              {mahasiswa.nim}
+            </Grid>
+            <Grid size={4} className="border-l-2 border-white max-w-full text-center flex items-center justify-center">
+              {mahasiswa.name}
+            </Grid>
+            <Grid size={4} className="border-l-2 border-white max-w-full text-center flex items-center justify-center">
+              {mahasiswa.jabatanDosen}
+            </Grid>
+            <Grid size={4} className="border-l-2 border-white max-w-full text-center flex items-center justify-center">
+              <IconButton className="p-0" aria-label="delete" onClick={() => handleClickOpenDialog(mahasiswa)}>
                 <DeleteIcon />
               </IconButton>
-              <Dialog open={openDialog} TransitionComponent={Transition} keepMounted onClose={handleCloseDialog} aria-describedby="alert-dialog-slide-description">
-                <DialogTitle>{"Apakah Anda Ingin Menghapus Data?"}</DialogTitle>
-                <DialogContent>
-                  <DialogContentText id="alert-dialog-slide-description">Data ini mungkin bersifat sensitive, anda yakin akan menghapus data ini?</DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleCloseDialog}>Disagree</Button>
-                  <Button onClick={handleCloseDialog}>Agree</Button>
-                </DialogActions>
-              </Dialog>
-            </div>
+            </Grid>
           </Grid>
-        </Grid>
+        ))}
+        <Dialog open={openDialog} TransitionComponent={Transition} keepMounted onClose={handleCloseDialog} aria-describedby="alert-dialog-slide-description">
+          <DialogTitle>{"Apakah Anda Ingin Menghapus Data?"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-slide-description">Data ini mungkin bersifat sensitive, anda yakin akan menghapus data ini?</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>Disagree</Button>
+            <Button onClick={handleDeleteMahasiswa}>Agree</Button>
+          </DialogActions>
+        </Dialog>
       </Grid>
     </div>
   );

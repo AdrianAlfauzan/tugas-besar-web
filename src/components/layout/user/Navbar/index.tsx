@@ -12,6 +12,7 @@ import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { motion } from "framer-motion";
 
 // MY UTILS
 import Loader from "@/utils/Loader";
@@ -48,83 +49,85 @@ function Navbar() {
     }, 2000);
   }, []);
   return (
-    <AppBar position="fixed" className={`shadow-2xl shadow-cyan-800 transition-colors duration-500 ${scrolled ? "bg-gray-900" : "bg-transparent"} ${scrolled ? "shadow-blink" : "shadow-cyan-900"}`}>
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <NavbarLogo />
+    <motion.main initial={{ opacity: 0, y: -500, x: -200 }} animate={{ opacity: 1, y: -90, x: 0 }} transition={{ duration: 1.5 }}>
+      <AppBar position="fixed" className={`  border border-white rounded-lg shadow-2xl shadow-cyan-800 transition-colors duration-500 ${scrolled ? "bg-gray-900" : "bg-transparent"} ${scrolled ? "shadow-blink" : "shadow-cyan-900"}`}>
+        <Container maxWidth="xl">
+          <Toolbar disableGutters>
+            <NavbarLogo />
 
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton size="large" aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={handleOpenNavMenu} color="inherit">
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="toggle-menu-responsive"
-              anchorEl={toggleNavMenu}
-              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-              keepMounted
-              transformOrigin={{ vertical: "top", horizontal: "left" }}
-              open={Boolean(toggleNavMenu)}
-              onClose={() => setToggleNavMenu(null)}
-              sx={{ display: { xs: "block", md: "none" } }}
+            <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+              <IconButton size="large" aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={handleOpenNavMenu} color="inherit">
+                <MenuIcon />
+              </IconButton>
+              <Menu
+                id="toggle-menu-responsive"
+                anchorEl={toggleNavMenu}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                keepMounted
+                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                open={Boolean(toggleNavMenu)}
+                onClose={() => setToggleNavMenu(null)}
+                sx={{ display: { xs: "block", md: "none" } }}
+              >
+                <MenuItems handleNavigate={handleNavigate} />
+              </Menu>
+            </Box>
+            <Typography
+              variant="h5"
+              noWrap
+              component="a"
+              href="#app-bar-with-responsive-menu"
+              sx={{
+                display: { xs: "flex", md: "none" },
+                flexGrow: 1,
+                fontFamily: "monospace",
+                fontWeight: 700,
+                letterSpacing: ".3rem",
+                color: "inherit",
+                textDecoration: "none",
+              }}
             >
+              RESPONSIVE
+            </Typography>
+            <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex", justifyContent: "center" } }}>
               <MenuItems handleNavigate={handleNavigate} />
-            </Menu>
-          </Box>
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            RESPONSIVE
-          </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex", justifyContent: "center" } }}>
-            <MenuItems handleNavigate={handleNavigate} />
-          </Box>
+            </Box>
 
-          <Box>
-            {isLoading ? (
-              // Jika masih loading, tampilkan Loader
-              <Loader size={30} />
-            ) : data ? (
-              // Jika `data` tersedia, tampilkan avatar pengguna
-              <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu}>
-                  <Avatar alt="User Avatar" src={data.user?.image || "/static/images/avatar/2.jpg"} />
-                </IconButton>
-              </Tooltip>
-            ) : (
-              // Jika `data` tidak tersedia, tampilkan tombol Login
-              <Tooltip title="Login">
-                <Button onClick={() => signIn()} sx={{ color: "white", display: "block" }}>
-                  <Typography variant="h6" className="mx-10">
-                    Login
-                  </Typography>
-                </Button>
-              </Tooltip>
-            )}
+            <Box>
+              {isLoading ? (
+                // Jika masih loading, tampilkan Loader
+                <Loader size={30} />
+              ) : data ? (
+                // Jika `data` tersedia, tampilkan avatar pengguna
+                <Tooltip title="Open settings">
+                  <IconButton onClick={handleOpenUserMenu}>
+                    <Avatar alt="User Avatar" src={data.user?.image || "/static/images/avatar/2.jpg"} />
+                  </IconButton>
+                </Tooltip>
+              ) : (
+                // Jika `data` tidak tersedia, tampilkan tombol Login
+                <Tooltip title="Login">
+                  <Button onClick={() => signIn()} sx={{ color: "white", display: "block" }}>
+                    <Typography variant="h6" className="mx-10">
+                      Login
+                    </Typography>
+                  </Button>
+                </Tooltip>
+              )}
 
-            <UserMenu
-              toggleUserMenu={toggleUserMenu}
-              setToggleUserMenu={setToggleUserMenu}
-              userSession={data} // Pass data session ke UserMenu
-              signIn={signIn}
-              signOut={signOut}
-            />
-          </Box>
-          {isLoading ? <Loader size={1} /> : data ? <Typography>{data.user?.fullname}</Typography> : null}
-        </Toolbar>
-      </Container>
-    </AppBar>
+              <UserMenu
+                toggleUserMenu={toggleUserMenu}
+                setToggleUserMenu={setToggleUserMenu}
+                userSession={data} // Pass data session ke UserMenu
+                signIn={signIn}
+                signOut={signOut}
+              />
+            </Box>
+            {isLoading ? <Loader size={1} /> : data ? <Typography>{data.user?.fullname}</Typography> : null}
+          </Toolbar>
+        </Container>
+      </AppBar>
+    </motion.main>
   );
 }
 

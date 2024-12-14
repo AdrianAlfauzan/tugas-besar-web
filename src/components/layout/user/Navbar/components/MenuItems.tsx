@@ -84,7 +84,25 @@ const MenuItems: React.FC<MenuItemsProps> = ({ handleNavigate }) => {
           <MenuItem
             onClick={() => {
               handleClose();
-              handleNavigate("user/activity/PilihDosenPembimbing");
+              handleNavigate("/user/activity/Pendaftaran");
+            }}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                transform: "scale(1.1)",
+                padding: "10px 20px",
+              },
+            }}
+          >
+            Pendaftaran
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              handleNavigate("/user/activity/PilihDosenPembimbing");
             }}
             sx={{
               display: "flex",
@@ -102,7 +120,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ handleNavigate }) => {
           <MenuItem
             onClick={() => {
               handleClose();
-              handleNavigate("user/activity/StatusPembayaran");
+              handleNavigate("/user/activity/ComingSoon");
             }}
             sx={{
               display: "flex",
@@ -115,25 +133,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ handleNavigate }) => {
               },
             }}
           >
-            Status Pembayaran
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              handleNavigate("user/activity/UploadBukti");
-            }}
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              transition: "all 0.3s ease",
-              "&:hover": {
-                transform: "scale(1.1)",
-                padding: "10px 20px",
-              },
-            }}
-          >
-            Upload Tema & Proposal
+            ComingSoon
           </MenuItem>
         </Menu>
 
@@ -175,7 +175,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ handleNavigate }) => {
           <MenuItem
             onClick={() => {
               handleClose();
-              handleNavigate("user/activity/PilihDosen");
+              handleNavigate("/user/eligibilityCheckTA");
             }}
             sx={{
               display: "flex",
@@ -193,7 +193,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ handleNavigate }) => {
           <MenuItem
             onClick={() => {
               handleClose();
-              handleNavigate("user/activity/StatusPembayaran");
+              handleNavigate("/user/activity/StatusPembayaran");
             }}
             sx={{
               display: "flex",

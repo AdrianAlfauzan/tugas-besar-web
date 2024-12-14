@@ -162,8 +162,10 @@ const LoginView: React.FC = () => {
             </div>
           )}
         </div>
-        <div className="relative w-full h-full">
-          <Image src="/images/FotoLogin.jpg" alt="Login Illustration" layout="fill" objectFit="cover" />
+        <div className=" p-40 relative w-full h-full">
+          <div className="animate-spin  h-full flex items-center justify-center">
+            <Image src="/images/Bola.png" width={600} height={600} alt="Login" objectFit="cover" />
+          </div>
         </div>
       </div>
     </div>
