@@ -5,6 +5,11 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 First, run the development server:
 
 ```bash
+install node modules 
+npm i
+and then 
+ask to me for library (firebase)
+and then
 npm run dev
 # or
 yarn dev
