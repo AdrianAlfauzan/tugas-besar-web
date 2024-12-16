@@ -1,0 +1,14 @@
+Buka PowerShell dengan Hak Akses Administrator:
+    Tekan Windows + S, cari PowerShell, klik kanan, lalu pilih Run as Administrator.
+
+Jalankan perintah CMD : Get-ExecutionPolicy 
+Outputnya mungkin akan menunjukkan Restricted.
+
+Jalankan perintah CMD : Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+Ketika diminta konfirmasi, tekan Y dan Enter.
+
+Jalankan perintah CMD : Get-ExecutionPolicy
+Anda seharusnya melihat RemoteSigned.
+
+Finally
+npm run dev

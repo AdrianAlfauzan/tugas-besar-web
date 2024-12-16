@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
@@ -49,8 +48,13 @@ function Navbar() {
     }, 2000);
   }, []);
   return (
-    <motion.main initial={{ opacity: 0, y: -500, x: -200 }} animate={{ opacity: 1, y: -90, x: 0 }} transition={{ duration: 1.5 }}>
-      <AppBar position="fixed" className={`  border border-white rounded-lg shadow-2xl shadow-cyan-800 transition-colors duration-500 ${scrolled ? "bg-gray-900" : "bg-transparent"} ${scrolled ? "shadow-blink" : "shadow-cyan-900"}`}>
+    <main>
+      <motion.nav
+        initial={{ opacity: 0, y: -500, x: -200 }}
+        animate={{ opacity: 1, y: -90, x: 0 }}
+        transition={{ duration: 1.5 }}
+        className={` fixed z-50  w-full border border-white rounded-lg shadow-2xl shadow-cyan-800 transition-colors duration-500 ${scrolled ? "bg-gray-900" : "bg-transparent"} ${scrolled ? "shadow-blink" : "shadow-cyan-900"}`}
+      >
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             <NavbarLogo />
@@ -126,8 +130,8 @@ function Navbar() {
             {isLoading ? <Loader size={1} /> : data ? <Typography>{data.user?.fullname}</Typography> : null}
           </Toolbar>
         </Container>
-      </AppBar>
-    </motion.main>
+      </motion.nav>
+    </main>
   );
 }
 
