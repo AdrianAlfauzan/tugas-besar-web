@@ -112,8 +112,8 @@ const CekKelayakanTA = () => {
               <VisuallyHiddenInput type="file" onChange={(e) => handleFileUpload(e, "kartuBimbingan")} multiple accept=".pdf,.png,.jpg,.jpeg" />
             </Button>
             <Grid container spacing={2} className="rounded my-4">
-              <Grid size={4} className="bg-red-200 p-4 rounded">
-                <Typography variant="h6" className="rounded-sm">
+              <Grid size={4} className="bg-red-200 p-4 rounded ">
+                <Typography variant="h6" className="rounded-sm  xl:text-lg">
                   Uploaded Files Kartu Bimbingan :
                 </Typography>
               </Grid>

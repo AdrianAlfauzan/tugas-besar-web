@@ -105,7 +105,7 @@ function Navbar() {
                 // Jika `data` tersedia, tampilkan avatar pengguna
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu}>
-                    <Avatar alt="User Avatar" src={data.user?.image || "/static/images/avatar/2.jpg"} />
+                    <Avatar alt="User Avatar" src={data.user?.image} />
                   </IconButton>
                 </Tooltip>
               ) : (

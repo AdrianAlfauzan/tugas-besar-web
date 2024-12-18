@@ -6,9 +6,9 @@ export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   // Rute yang memerlukan login
-  const userRoutes = ["/user/testt", "/user/teststst"];
-  // const adminRoutes = ["/admin/beranda", "/admin/dashboard"];
+  const userRoutes = ["/user/activity/Pendaftaran", "/user/activity/PilihDosenPembimbing", "/user/eligibilityCheckTA", "/user/seminar"];
 
+  // Mendapatkan token
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
@@ -23,14 +23,21 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Jika token ada dan pengguna mencoba mengakses admin route
-  // if (adminRoutes.includes(pathname)) {
-  //   return NextResponse.redirect(new URL("/admin", req.url));
-  // }
+  // Cek jika pengguna memiliki token dan mencoba mengakses /admin/dashboard
+  if (pathname === "/admin/dashboard") {
+    // Jika role pengguna adalah admin, biarkan akses ke /admin/dashboard
+    if (token?.role === "admin") {
+      return NextResponse.next(); // Lanjutkan jika role adalah admin
+    } else {
+      // Jika bukan admin, arahkan ke /admin
+      return NextResponse.redirect(new URL("/admin", req.url));
+    }
+  }
 
+  // Jika rute lainnya, lanjutkan
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/user/testt", "/user/teststst", "/admin/beranda", "/admin/dashboard"], // Halaman yang diproteksi
+  matcher: ["/user/activity/Pendaftaran", "/user/activity/PilihDosenPembimbing", "/user/eligibilityCheckTA", "/user/seminar", "/admin/beranda", "/admin/dashboard"], // Halaman yang diproteksi
 };

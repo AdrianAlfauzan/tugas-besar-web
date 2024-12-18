@@ -1,4 +1,4 @@
-import { collection, getDocs, where, query, addDoc, getFirestore } from "firebase/firestore";
+import { collection, getDocs, where, query, doc, addDoc, getFirestore, updateDoc } from "firebase/firestore";
 import app from "@/lib/firebase/init";
 // import bcrypt from "bcrypt";
 
@@ -14,9 +14,6 @@ export async function mengambilData<DataType>(namaCollection: string): Promise<D
   return data;
 }
 
-// Tipe untuk callback
-type signUpCallback = (response: { status: boolean; message: string }) => void;
-
 export async function signIn(userData: { email: string }) {
   const q = query(collection(firestore, "users"), where("email", "==", userData.email));
   const snapshot = await getDocs(q);
@@ -30,6 +27,9 @@ export async function signIn(userData: { email: string }) {
     return null;
   }
 }
+
+// Tipe untuk callback
+type signUpCallback = (response: { status: boolean; message: string }) => void;
 
 export async function signUp(userData: { fullname: string; email: string; password: string; role?: string }, callback: signUpCallback) {
   const q = query(collection(firestore, "users"), where("email", "==", userData.email));
@@ -50,6 +50,44 @@ export async function signUp(userData: { fullname: string; email: string; passwo
       })
       .catch((error) => {
         callback({ status: false, message: error.message });
+      });
+  }
+}
+
+export async function signInWithGoogle(userData: any, callback: any) {
+  if (!userData.email) {
+    return callback({ status: false, message: "Email is required", data: userData });
+  }
+
+  const q = query(collection(firestore, "users"), where("email", "==", userData.email));
+  const snapshot = await getDocs(q);
+  const data: any = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  console.log("Data from Firestore:", data);
+
+  if (data.length > 0) {
+    // Jika user sudah ada, update data
+    await updateDoc(doc(firestore, "users", data[0].id), userData)
+      .then(() => {
+        callback({ status: true, message: "User updated successfully", data: userData });
+      })
+      .catch((error) => {
+        console.error("Error updating document: ", error);
+        callback({ status: false, message: "Failed to update user", data: userData });
+      });
+  } else {
+    // Jika user belum ada, tambahkan data baru
+    userData.role = "member";
+    await addDoc(collection(firestore, "users"), userData)
+      .then(() => {
+        callback({ status: true, message: "User created successfully", data: userData });
+      })
+      .catch((error) => {
+        console.error("Error adding document: ", error);
+        callback({ status: false, message: "Failed to create user", data: userData });
       });
   }
 }
