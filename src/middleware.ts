@@ -34,6 +34,7 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // testtt saja
   // Jika rute lainnya, lanjutkan
   return NextResponse.next();
 }
