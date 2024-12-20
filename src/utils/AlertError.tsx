@@ -3,9 +3,9 @@ import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import Stack from "@mui/material/Stack";
 
-const AlertSuccess = ({ message }: { message: string }) => {
+const AlertError = ({ message }: { message: string }) => {
   return (
-    <div className="fixed top-5 left-5 z-50">
+    <div className="fixed top-5 left-0 z-50">
       <Stack
         sx={{
           width: "100%",
@@ -15,11 +15,11 @@ const AlertSuccess = ({ message }: { message: string }) => {
       >
         <Alert severity="error">
           <AlertTitle>{message}</AlertTitle>
-          This is a success Alert with an encouraging title.
+          Silahkan Memasukkan Data Dengan Benar!
         </Alert>
       </Stack>
     </div>
   );
 };
 
-export default AlertSuccess;
+export default AlertError;

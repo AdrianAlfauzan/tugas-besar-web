@@ -15,7 +15,7 @@ const AlertSuccess = ({ message }: { message: string }) => {
       >
         <Alert severity="success">
           <AlertTitle>{message}</AlertTitle>
-          This is a success Alert with an encouraging title.
+          Selamat Anda Berhasil Memasukkan Data Dengan Benar!
         </Alert>
       </Stack>
     </div>

@@ -12,6 +12,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import AlertKelayakanSuccess from "@/utils/AlertKelayakanSuccess";
 import AlertKelayakanInfo from "@/utils/AlertKelayakanInfo";
 import AlertFilledInfo from "@/utils/AlertFilledInfo";
+import { useSession } from "next-auth/react";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -30,6 +31,7 @@ const CekKelayakanTA = () => {
   const [suratFiles, setSuratFiles] = useState<File[]>([]);
   const [proposalTAFiles, setProposalTAFiles] = useState<File[]>([]);
   const [previewFile, setPreviewFile] = useState<File | null>(null);
+  const { data }: any = useSession();
 
   const handleFileUpload = (event: ChangeEvent<HTMLInputElement>, uploadType: "kartuBimbingan" | "surat" | "proposalTA") => {
     if (event.target.files && event.target.files.length > 0) {
@@ -62,13 +64,10 @@ const CekKelayakanTA = () => {
   const handleSubmit = () => {
     const formData = new FormData();
 
-    // Menambahkan file ke FormData
     kartuBimbinganFiles.forEach((file) => formData.append("kartuBimbinganFiles[]", file));
     suratFiles.forEach((file) => formData.append("suratFiles[]", file));
     proposalTAFiles.forEach((file) => formData.append("proposalTAFiles[]", file));
 
-    // Mengirimkan data (misalnya menggunakan fetch ke API)
-    // Contoh: POST request menggunakan fetch
     fetch("/upload-endpoint", {
       method: "POST",
       body: formData,
@@ -76,7 +75,6 @@ const CekKelayakanTA = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log("Upload berhasil:", data);
-        // Anda bisa menambahkan notifikasi atau mengarahkan pengguna setelah upload berhasil
       })
       .catch((error) => {
         console.error("Terjadi kesalahan saat mengirim data:", error);
@@ -92,10 +90,10 @@ const CekKelayakanTA = () => {
           </Container>
           <Container className="mt-4 p-4 text-black font-semibold bg-gray-100 rounded-lg">
             <Typography variant="h6" className="text-center">
-              Adrian Musa Alfauzan
+              {data?.user?.fullname}
             </Typography>
-            <Typography className="text-center">2250081020</Typography>
-            <Typography className="text-center">Teknik Informatika | S1</Typography>
+            <Typography className="text-center">{data?.user?.nim}</Typography>
+            <Typography className="text-center">{data?.user?.jurusan} | S1</Typography>
           </Container>
           <AlertKelayakanInfo message="Silahkan klik button cek kelayakan untuk melakukan pengecekan kelayakan TA" />
           <Container className="p-4 text-black font-semibold bg-gray-100 rounded-lg">

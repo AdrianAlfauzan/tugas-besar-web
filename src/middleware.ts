@@ -6,7 +6,7 @@ export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   // Rute yang memerlukan login
-  const userRoutes = ["/user/activity/Pendaftaran", "/user/activity/PilihDosenPembimbing", "/user/eligibilityCheckTA", "/user/seminar"];
+  const userRoutes = ["/api/ApiGetUsers", "/user/activity/Pendaftaran", "/user/activity/PilihDosenPembimbing", "/user/eligibilityCheckTA", "/user/seminar"];
 
   // Mendapatkan token
   const token = await getToken({
@@ -18,27 +18,15 @@ export async function middleware(req: NextRequest) {
   if (!token) {
     if (userRoutes.includes(pathname)) {
       const loginUrl = new URL("/auth/login", req.url);
-      loginUrl.searchParams.set("callbackUrl", req.url); // Simpan callback untuk redirect setelah login
+      loginUrl.searchParams.set("callbackUrl", req.url); // Ketika user klik pages yang dia mau, dan disuruh login akan diarahkan ke halaman tersebut yang dari awal dia klik
       return NextResponse.redirect(loginUrl);
     }
   }
 
-  // Cek jika pengguna memiliki token dan mencoba mengakses /admin/dashboard
-  if (pathname === "/admin/dashboard") {
-    // Jika role pengguna adalah admin, biarkan akses ke /admin/dashboard
-    if (token?.role === "admin") {
-      return NextResponse.next(); // Lanjutkan jika role adalah admin
-    } else {
-      // Jika bukan admin, arahkan ke /admin
-      return NextResponse.redirect(new URL("/admin", req.url));
-    }
-  }
-
-  // testtt saja
   // Jika rute lainnya, lanjutkan
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/user/activity/Pendaftaran", "/user/activity/PilihDosenPembimbing", "/user/eligibilityCheckTA", "/user/seminar", "/admin/beranda", "/admin/dashboard"], // Halaman yang diproteksi
+  matcher: ["/api/ApiGetUsers", "/user/activity/Pendaftaran", "/user/activity/PilihDosenPembimbing", "/user/eligibilityCheckTA", "/user/seminar"], // Halaman yang diproteksi
 };

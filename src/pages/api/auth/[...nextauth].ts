@@ -41,10 +41,12 @@ const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, user }: any) {
       if (account?.provider === "credentials") {
-        token.email = user.email;
-        token.fullname = user.fullname;
-        token.password = user.password;
-        token.role = user.role;
+        const userTokenProperties = ["fullname", "email", "password", "nim", "jurusan", "role"];
+        userTokenProperties.forEach((property) => {
+          if (user[property]) {
+            token[property] = user[property];
+          }
+        });
       }
       if (account?.provider === "google") {
         const data = {
@@ -52,7 +54,6 @@ const authOptions: NextAuthOptions = {
           email: user.email,
           image: user.image,
           type: "google",
-          // role: "",
         };
         await signInWithGoogle(data, (result: { status: boolean; message: string; data: any }) => {
           if (result.status) {
@@ -67,18 +68,13 @@ const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }: any) {
-      if ("email" in token) {
-        session.user.email = token.email;
-      }
-      if ("fullname" in token) {
-        session.user.fullname = token.fullname || "Tidak ada Data";
-      }
-      if ("image" in token) {
-        session.user.image = token.image;
-      }
-      if ("role" in token) {
-        session.user.role = token.role;
-      }
+      const userSessionProperties = ["email", "fullname", "nim", "jurusan", "image", "role"];
+      userSessionProperties.forEach((property) => {
+        if (property in token) {
+          session.user[property] = token[property] || "Tidak ada Data";
+        }
+      });
+
       return session;
     },
   },

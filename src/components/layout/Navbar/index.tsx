@@ -12,7 +12,6 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { motion } from "framer-motion";
-
 // MY UTILS
 import Loader from "@/utils/Loader";
 
@@ -20,9 +19,9 @@ import Loader from "@/utils/Loader";
 import useScroll from "@/hooks/frontend/useScroll";
 
 // Import Subcomponents
-import NavbarLogo from "@/components/layout/user/Navbar/components/NavbarLogo";
-import MenuItems from "@/components/layout/user/Navbar/components/MenuItems";
-import UserMenu from "@/components/layout/user/Navbar/components/UserMenu";
+import NavbarLogo from "@/components/layout/Navbar/components/NavbarLogo";
+import MenuItems from "@/components/layout/Navbar/components/MenuItems";
+import UserMenu from "@/components/layout/Navbar/components/UserMenu";
 
 function Navbar() {
   const [toggleNavMenu, setToggleNavMenu] = useState<null | HTMLElement>(null);
@@ -47,6 +46,7 @@ function Navbar() {
       setIsLoading(false);
     }, 2000);
   }, []);
+
   return (
     <main>
       <motion.nav
@@ -58,7 +58,6 @@ function Navbar() {
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             <NavbarLogo />
-
             <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
               <IconButton size="large" aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={handleOpenNavMenu} color="inherit">
                 <MenuIcon />
@@ -96,7 +95,6 @@ function Navbar() {
             <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex", justifyContent: "center" } }}>
               <MenuItems handleNavigate={handleNavigate} />
             </Box>
-
             <Box>
               {isLoading ? (
                 // Jika masih loading, tampilkan Loader
