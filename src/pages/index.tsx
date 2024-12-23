@@ -10,6 +10,8 @@ import { IconButton } from "@mui/material";
 import ArrowCircleLeftTwoToneIcon from "@mui/icons-material/ArrowCircleLeftTwoTone";
 import ArrowCircleRightTwoToneIcon from "@mui/icons-material/ArrowCircleRightTwoTone";
 import { Link } from "react-scroll";
+import { useSession } from "next-auth/react";
+import GoogleLoginModal from "@/constant/GoogleLoginModal";
 
 const images = ["/images/university1.jpg", "/images/university2.jpg", "/images/university3.jpg", "/images/university4.jpg", "/images/university5.jpg", "/images/university6.jpg"];
 const promoTexts = [
@@ -32,6 +34,8 @@ const promoTexts = [
 ];
 
 export default function Home() {
+  const { data }: any = useSession();
+  const [openModal, setOpenModal] = useState(false);
   const [value, setValue] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
@@ -54,6 +58,12 @@ export default function Home() {
     }, 4000); // Ganti teks setiap 4 detik
     return () => clearInterval(interval); // Bersihkan interval saat komponen tidak lagi digunakan
   }, []);
+  useEffect(() => {
+    // Mengecek apakah login dilakukan menggunakan Google
+    if (data && data.user.isGoogleLogin) {
+      setOpenModal(true);
+    }
+  }, [data]);
   return (
     <main className="gap-10  p-5 my-24 ">
       <div className="flex gap-10">
@@ -203,6 +213,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <GoogleLoginModal open={openModal} onClose={() => setOpenModal(false)} />
     </main>
   );
 }

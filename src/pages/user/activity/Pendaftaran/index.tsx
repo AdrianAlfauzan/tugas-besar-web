@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button, TextField, MenuItem, Select, InputLabel, FormControl } from "@mui/material";
+import { savePendaftaran } from "@/lib/firebase/service"; // Mengimpor fungsi savePendaftaran dari service
 
 const Pendaftaran = () => {
   const [judulProposal, setJudulProposal] = useState("");
@@ -8,11 +9,26 @@ const Pendaftaran = () => {
   const [statusPembayaran, setStatusPembayaran] = useState("");
   const [selectedGrid, setSelectedGrid] = useState<string | null>(null);
 
-  const handleSubmit = () => {
-    console.log({ judulProposal, temaProposal, statusPembayaran });
-    setSelectedGrid(null);
+  // Fungsi untuk mengirim data ke Firestore
+  const handleSubmit = async () => {
+    const data = { judulProposal, temaProposal, statusPembayaran };
+    const response = await savePendaftaran(data);
+
+    if (response.success) {
+      console.log("Data berhasil disimpan!");
+      // Reset form setelah berhasil
+      setJudulProposal(data.judulProposal);
+      setTemaProposal(data.temaProposal);
+      setStatusPembayaran(data.statusPembayaran);
+
+      // Reset selectedGrid supaya modal ditutup setelah submit
+      setSelectedGrid(null);
+    } else {
+      console.error("Gagal menyimpan data:", response.error);
+    }
   };
 
+  // Animasi grid
   const gridAnimation = {
     hidden: { opacity: 0, scale: 0.9 },
     visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } },

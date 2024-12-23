@@ -10,6 +10,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+// import NotificationsIcon from "@mui/icons-material/Notifications";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 // MY UTILS
@@ -23,10 +24,17 @@ import NavbarLogo from "@/components/layout/Navbar/components/NavbarLogo";
 import MenuItems from "@/components/layout/Navbar/components/MenuItems";
 import UserMenu from "@/components/layout/Navbar/components/UserMenu";
 
+// Import Modal untuk notifikasi
+// import Modal from "@mui/material/Modal";
+// import BoxModal from "@mui/material/Box";
+// import ButtonModal from "@mui/material/Button";
+
 function Navbar() {
   const [toggleNavMenu, setToggleNavMenu] = useState<null | HTMLElement>(null);
   const [toggleUserMenu, setToggleUserMenu] = useState<null | HTMLElement>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // const [anchorNotifMenu, setAnchorNotifMenu] = useState<null | HTMLElement>(null);
+  // const [openModal, setOpenModal] = useState(false);
   const { data }: any = useSession();
   const scrolled = useScroll();
   const router = useRouter();
@@ -34,13 +42,32 @@ function Navbar() {
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setToggleNavMenu(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setToggleUserMenu(event.currentTarget);
   };
+
+  // const handleOpenNotifMenu = (event: React.MouseEvent<HTMLElement>) => {
+  //   setAnchorNotifMenu(event.currentTarget); // Menampilkan menu notifikasi
+  // };
+
+  // const handleCloseNotifMenu = () => {
+  //   setAnchorNotifMenu(null); // Menutup menu notifikasi
+  // };
+
   const handleNavigate = (route: string) => {
     router.push(route);
     setToggleNavMenu(null);
   };
+
+  // const handleOpenModal = () => {
+  //   setOpenModal(true); // Menampilkan modal
+  // };
+
+  // const handleCloseModal = () => {
+  //   setOpenModal(false); // Menutup modal
+  // };
+
   useEffect(() => {
     setTimeout(() => {
       setIsLoading(false);
@@ -95,6 +122,16 @@ function Navbar() {
             <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex", justifyContent: "center" } }}>
               <MenuItems handleNavigate={handleNavigate} />
             </Box>
+
+            {/* Ikon Notifikasi */}
+            {/* <IconButton size="large" aria-label="notifikasi" color="inherit" onClick={handleOpenNotifMenu}>
+              <NotificationsIcon />
+            </IconButton>
+            <Menu anchorEl={anchorNotifMenu} anchorOrigin={{ vertical: "top", horizontal: "right" }} keepMounted transformOrigin={{ vertical: "top", horizontal: "right" }} open={Boolean(anchorNotifMenu)} onClose={handleCloseNotifMenu}>
+              <MenuItems handleNavigate={handleNavigate} />
+              <Button onClick={handleOpenModal}>Ada tugas yang belum dikerjakan</Button>
+            </Menu> */}
+
             <Box>
               {isLoading ? (
                 // Jika masih loading, tampilkan Loader
@@ -129,6 +166,19 @@ function Navbar() {
           </Toolbar>
         </Container>
       </motion.nav>
+
+      {/* Modal Notifikasi */}
+      {/* <Modal open={openModal} onClose={handleCloseModal}>
+        <BoxModal sx={{ padding: 2, width: 400, margin: "auto", backgroundColor: "white", borderRadius: 2 }}>
+          <Typography variant="h6">Peringatan</Typography>
+          <Typography variant="body1" sx={{ marginBottom: 2 }}>
+            Anda memiliki tugas yang belum dikerjakan, segera perbaiki.
+          </Typography>
+          <ButtonModal variant="contained" onClick={handleCloseModal}>
+            OK
+          </ButtonModal>
+        </BoxModal>
+      </Modal> */}
     </main>
   );
 }

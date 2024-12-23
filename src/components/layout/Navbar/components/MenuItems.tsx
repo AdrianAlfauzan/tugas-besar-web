@@ -84,6 +84,24 @@ const MenuItems: React.FC<MenuItemsProps> = ({ handleNavigate }) => {
           <MenuItem
             onClick={() => {
               handleClose();
+              handleNavigate("/user/activity/Biodata");
+            }}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                transform: "scale(1.1)",
+                padding: "10px 20px",
+              },
+            }}
+          >
+            Biodata
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              handleClose();
               handleNavigate("/user/activity/Pendaftaran");
             }}
             sx={{

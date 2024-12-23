@@ -36,6 +36,11 @@ const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_OAUTH_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET || "",
+      authorization: {
+        params: {
+          prompt: "select_account",
+        },
+      },
     }),
   ],
   callbacks: {
@@ -54,21 +59,28 @@ const authOptions: NextAuthOptions = {
           email: user.email,
           image: user.image,
           type: "google",
+          nim: "",
+          jurusan: "",
+          role: "",
+          isGoogleLogin: true,
         };
         await signInWithGoogle(data, (result: { status: boolean; message: string; data: any }) => {
           if (result.status) {
-            token.email = result.data.email;
-            token.fullname = result.data.fullname;
-            token.image = result.data.image;
-            token.type = result.data.type;
-            token.role = result.data.role;
+            token.email = data.email;
+            token.fullname = data.fullname;
+            token.image = data.image;
+            token.type = data.type;
+            token.nim = data.nim;
+            token.jurusan = data.jurusan;
+            token.role = data.role;
+            token.isGoogleLogin = data.isGoogleLogin;
           }
         });
       }
       return token;
     },
     async session({ session, token }: any) {
-      const userSessionProperties = ["email", "fullname", "nim", "jurusan", "image", "role"];
+      const userSessionProperties = ["email", "fullname", "nim", "jurusan", "image", "role", "isGoogleLogin"];
       userSessionProperties.forEach((property) => {
         if (property in token) {
           session.user[property] = token[property] || "Tidak ada Data";
