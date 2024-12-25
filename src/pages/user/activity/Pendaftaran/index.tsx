@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button, TextField, MenuItem, Select, InputLabel, FormControl } from "@mui/material";
 import { savePendaftaran } from "@/lib/firebase/service"; // Mengimpor fungsi savePendaftaran dari service
+
+import AlertSuccess from "@/utils/AlertSuccess";
+import AlertError from "@/utils/AlertError";
+import { ValidasiXss } from "@/utils/ValidateXss";
 
 const Pendaftaran = () => {
   const [judulProposal, setJudulProposal] = useState("");
@@ -9,22 +13,55 @@ const Pendaftaran = () => {
   const [statusPembayaran, setStatusPembayaran] = useState("");
   const [selectedGrid, setSelectedGrid] = useState<string | null>(null);
 
-  // Fungsi untuk mengirim data ke Firestore
-  const handleSubmit = async () => {
-    const data = { judulProposal, temaProposal, statusPembayaran };
-    const response = await savePendaftaran(data);
+  // State for handling alerts
+  const [alertSuccess, setAlertSuccess] = useState<string | null>(null);
+  const [alertError, setAlertError] = useState<string | null>(null);
 
+  // Menyimpan dan mengambil data dari localStorage saat mount
+  useEffect(() => {
+    const storedJudulProposal = localStorage.getItem("judulProposal");
+    const storedTemaProposal = localStorage.getItem("temaProposal");
+    const storedStatusPembayaran = localStorage.getItem("statusPembayaran");
+
+    if (storedJudulProposal) setJudulProposal(storedJudulProposal);
+    if (storedTemaProposal) setTemaProposal(storedTemaProposal);
+    if (storedStatusPembayaran) setStatusPembayaran(storedStatusPembayaran);
+  }, []);
+
+  // Fungsi untuk mengirim data ke Firestore
+  const handleSubmit = async (field: string) => {
+    let data: any;
+    if (field === "judulProposal") {
+      data = { judulProposal };
+    } else if (field === "temaProposal") {
+      data = { temaProposal };
+    } else if (field === "statusPembayaran") {
+      data = { statusPembayaran };
+    }
+
+    // Validasi XSS
+    if (!ValidasiXss(data[field])) {
+      setAlertError("Input mengandung karakter yang tidak valid! XSS terdeteksi.");
+      setTimeout(() => setAlertError(null), 3000);
+      return; // Jangan lanjutkan pengiriman data
+    }
+
+    const response = await savePendaftaran(data);
     if (response.success) {
       console.log("Data berhasil disimpan!");
-      // Reset form setelah berhasil
-      setJudulProposal(data.judulProposal);
-      setTemaProposal(data.temaProposal);
-      setStatusPembayaran(data.statusPembayaran);
+      setAlertSuccess("Data berhasil disimpan!");
+      setTimeout(() => setAlertSuccess(null), 3000);
 
-      // Reset selectedGrid supaya modal ditutup setelah submit
+      // Menyimpan data ke localStorage
+      localStorage.setItem("judulProposal", judulProposal);
+      localStorage.setItem("temaProposal", temaProposal);
+      localStorage.setItem("statusPembayaran", statusPembayaran);
+
       setSelectedGrid(null);
     } else {
       console.error("Gagal menyimpan data:", response.error);
+      setAlertError("Gagal menyimpan data!");
+      setTimeout(() => setAlertError(null), 3000);
     }
   };
 
@@ -41,7 +78,9 @@ const Pendaftaran = () => {
         <h1 className="text-5xl font-extrabold">Pendaftaran Tugas Akhir</h1>
         <p className="text-xl mt-4">Buat dan kelola proposal anda dengan baik</p>
       </motion.div>
-
+      {/* Alerts */}
+      {alertSuccess && <AlertSuccess message={alertSuccess} />}
+      {alertError && <AlertError message={alertError} />}
       {/* Grid Layout */}
       <div className="grid grid-cols-3 gap-6">
         <motion.div className="p-6 bg-white rounded-lg shadow-md cursor-pointer" variants={gridAnimation} initial="hidden" animate="visible" onClick={() => setSelectedGrid("statusPembayaran")} layoutId="statusPembayaran">
@@ -80,7 +119,7 @@ const Pendaftaran = () => {
               <Button onClick={() => setSelectedGrid(null)} color="secondary" variant="contained">
                 Batal
               </Button>
-              <Button onClick={handleSubmit} color="primary" variant="contained">
+              <Button onClick={() => handleSubmit(selectedGrid)} color="primary" variant="contained" disabled={selectedGrid === "judulProposal" ? !judulProposal : selectedGrid === "temaProposal" ? !temaProposal : !statusPembayaran}>
                 Submit
               </Button>
             </div>

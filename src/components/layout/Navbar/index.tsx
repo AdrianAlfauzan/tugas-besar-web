@@ -162,7 +162,7 @@ function Navbar() {
                 signOut={signOut}
               />
             </Box>
-            {isLoading ? <Loader size={1} /> : data ? <Typography>{data.user?.fullname}</Typography> : null}
+            {isLoading ? <Loader size={1} /> : data ? <Typography>{data?.user?.fullname}</Typography> : null}
           </Toolbar>
         </Container>
       </motion.nav>

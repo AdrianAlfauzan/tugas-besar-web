@@ -113,23 +113,23 @@ interface PendaftaranData {
   statusPembayaran: string;
 }
 
+// Fungsi untuk menyimpan data pendaftaran
 export const savePendaftaran = async (data: PendaftaranData) => {
   try {
     // Ambil session dari NextAuth untuk mendapatkan informasi user
-    const session = await getSession();
+    const session: any = await getSession();
 
     if (!session) {
       throw new Error("User belum terautentikasi. Silakan login.");
     }
 
-    // Ambil userId dari Firestore berdasarkan email di session
+    // Ambil koleksi user dari Firestore
     const userCollection = collection(firestore, "users");
 
-    // Cari dokumen berdasarkan email user yang sedang login
-    const q = query(userCollection, where("email", "==", session.user?.email));
+    // Cari dokumen berdasarkan nim user yang sedang login
+    const q = query(userCollection, where("nim", "==", session.user?.nim));
     const snapshot = await getDocs(q);
 
-    // Jika tidak ditemukan user, lempar error
     if (snapshot.empty) {
       throw new Error("Dokumen user tidak ditemukan.");
     }
@@ -140,24 +140,27 @@ export const savePendaftaran = async (data: PendaftaranData) => {
     // Referensi dokumen pendaftaran berdasarkan userId
     const docRef = doc(db, "pendaftaran", userId);
 
-    // Cek apakah data pendaftaran sudah ada di Firestore
+    // Ambil dokumen pendaftaran
     const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-      // Jika sudah ada, gabungkan data baru dengan data lama
-      const existingData = docSnap.data();
-      const updatedData = {
-        judulProposal: data.judulProposal || existingData.judulProposal,
-        temaProposal: data.temaProposal || existingData.temaProposal,
-        statusPembayaran: data.statusPembayaran || existingData.statusPembayaran,
-      };
+    // Gabungkan data lama dengan data baru jika dokumen sudah ada
+    const updatedData = docSnap.exists()
+      ? {
+          ...docSnap.data(),
+          ...data,
+          email: session?.user?.email,
+          fullname: session?.user?.fullname,
+          nim: session?.user?.nim,
+        }
+      : {
+          ...data,
+          email: session?.user?.email,
+          fullname: session?.user?.fullname,
+          nim: session?.user?.nim,
+        };
 
-      // Perbarui dokumen dengan data gabungan
-      await setDoc(docRef, updatedData);
-    } else {
-      // Jika data belum ada, simpan data baru
-      await setDoc(docRef, data);
-    }
+    // Simpan data ke Firestore
+    await setDoc(docRef, updatedData, { merge: true });
 
     return { success: true };
   } catch (error: any) {

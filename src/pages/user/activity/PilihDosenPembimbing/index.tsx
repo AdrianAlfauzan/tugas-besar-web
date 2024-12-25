@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import Grid from "@mui/material/Grid2";
+import React, { useEffect, useState, forwardRef } from "react";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 import { styled, alpha } from "@mui/material/styles";
@@ -16,9 +15,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
 import Skeleton from "@/utils/skeleton";
 import Alert from "@mui/material/Alert";
+import { motion } from "framer-motion";
 
 const SearchIconWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 2),
@@ -29,6 +28,7 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "center",
 }));
+
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -43,6 +43,7 @@ const Search = styled("div")(({ theme }) => ({
     width: "auto",
   },
 }));
+
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: "inherit",
   width: "100%",
@@ -59,19 +60,22 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="up" ref={ref} {...props} />;
+const Transition = forwardRef(function Transition(props: React.ComponentProps<typeof Slide>, ref) {
+  const { children, ...rest } = props;
+  return (
+    <Slide direction="up" ref={ref} {...rest}>
+      {children}
+    </Slide>
+  );
 });
 
 const PilihDosenPembimbing = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedDosen, setSelectedDosen] = useState<any | null>(null);
+  const [position, setPosition] = React.useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const handleClickOpenDialog = (dosen: any) => {
     setSelectedDosen(dosen);
@@ -83,7 +87,6 @@ const PilihDosenPembimbing = () => {
     setSelectedDosen(null);
   };
 
-  const [position, setPosition] = React.useState("");
   const handleChange = (event: SelectChangeEvent) => {
     setPosition(event.target.value as string);
   };
@@ -92,7 +95,18 @@ const PilihDosenPembimbing = () => {
     { id: 1, nidn: "1234545", name: "Adrian Kurniawan", dosenPengajar: "DSE" },
     { id: 2, nidn: "097823", name: "Adrian Musa Alfauzan", dosenPengajar: "AIG" },
     { id: 3, nidn: "2250081020", name: "Adrian Alfauzan", dosenPengajar: "DSE" },
-    { id: 4, nidn: "2250081020", name: "Adrian Alfauzan", dosenPengajar: "DSE" },
+    { id: 4, nidn: "2250081021", name: "Sarah Rahmawati", dosenPengajar: "AIG" },
+    { id: 5, nidn: "2250081022", name: "Ahmad Darmawan", dosenPengajar: "DSE" },
+    { id: 6, nidn: "2250081023", name: "Fiona Sari", dosenPengajar: "AIG" },
+    { id: 7, nidn: "2250081024", name: "Budi Santoso", dosenPengajar: "DSE" },
+    { id: 8, nidn: "2250081025", name: "Lina Permatasari", dosenPengajar: "AIG" },
+    { id: 9, nidn: "2250081026", name: "Dian Wijaya", dosenPengajar: "DSE" },
+    { id: 10, nidn: "2250081027", name: "Rina Pratiwi", dosenPengajar: "AIG" },
+    { id: 11, nidn: "2250081028", name: "Eko Yulianto", dosenPengajar: "DSE" },
+    { id: 12, nidn: "2250081029", name: "Rani Anugrah", dosenPengajar: "AIG" },
+    { id: 13, nidn: "2250081030", name: "Toni Hidayat", dosenPengajar: "DSE" },
+    { id: 14, nidn: "2250081031", name: "Siti Nurhaliza", dosenPengajar: "AIG" },
+    { id: 15, nidn: "2250081032", name: "Kurniawan Setiawan", dosenPengajar: "DSE" },
   ];
 
   useEffect(() => {
@@ -106,19 +120,30 @@ const PilihDosenPembimbing = () => {
     setOpenDialog(false);
   };
 
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentDosenData = dosenData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(dosenData.length / itemsPerPage);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
   return (
-    <main className="flex gap-10 my-24 p-5">
+    <motion.main className="flex gap-10 my-24 p-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
       {isLoading ? (
         <Skeleton />
       ) : (
-        <div className="p-4 w-full bg-white rounded-lg">
-          <Grid container spacing={1} className="bg-slate-500 rounded-md mb-4 max-w-full">
-            <Grid size={4} className="rounded  max-w-full text-center flex items-center justify-center">
-              <Alert variant="outlined" severity="info" sx={{ width: "90%" }}>
+        <motion.div className="p-4 w-full bg-white rounded-lg shadow-md" initial={{ scale: 0.9 }} animate={{ scale: 1 }} transition={{ duration: 0.5 }}>
+          <div className="bg-gray-100 rounded-md mb-4 w-full flex">
+            <div className="w-full max-w-[33.33%] text-center flex items-center justify-center">
+              <Alert variant="filled" severity="info" sx={{ width: "90%" }}>
                 Pilih dosen pembimbing yang sesuai dengan mata kuliah anda!
               </Alert>
-            </Grid>
-            <Grid size={4} className="rounded flex justify-center ">
+            </div>
+            <div className="w-full max-w-[33.33%] flex justify-center">
               <Toolbar>
                 <Search>
                   <SearchIconWrapper>
@@ -127,10 +152,10 @@ const PilihDosenPembimbing = () => {
                   <StyledInputBase placeholder="Search…" inputProps={{ "aria-label": "search" }} />
                 </Search>
               </Toolbar>
-            </Grid>
-            <Grid size={4} className="p-4 rounded max-w-full">
+            </div>
+            <div className="w-full max-w-[33.33%] p-4 rounded">
               <Box sx={{ minWidth: 180 }}>
-                <FormControl size="small" fullWidth>
+                <FormControl fullWidth size="small">
                   <InputLabel id="select-position">Dosen Pengajar</InputLabel>
                   <Select labelId="select-position" id="select-position" value={position} label="Jabatan Dosen" onChange={handleChange}>
                     <MenuItem value="AIG">AIG</MenuItem>
@@ -138,42 +163,48 @@ const PilihDosenPembimbing = () => {
                   </Select>
                 </FormControl>
               </Box>
-            </Grid>
-          </Grid>
-          <Grid container spacing={1} className="bg-slate-500 rounded-md">
-            <Grid size={12} className="p-2 max-w-full text-center flex items-center justify-center border-b-2 border-white">
-              <Grid size={4} className="rounded max-w-full text-center flex items-center justify-center">
-                NIDN
-              </Grid>
-              <Grid size={4} className="border-l-2 border-white max-w-full text-center flex items-center justify-center">
-                Nama Dosen
-              </Grid>
-              <Grid size={4} className="border-l-2 border-white max-w-full text-center flex items-center justify-center">
-                Dosen Pengajar
-              </Grid>
-              <Grid size={4} className="border-l-2 border-white max-w-full text-center flex items-center justify-center">
-                Action
-              </Grid>
-            </Grid>
-            {dosenData.map((dosen) => (
-              <Grid key={dosen.id} size={12} className="p-2 max-w-full text-center flex items-center justify-center">
-                <Grid size={4} className="max-w-full text-center flex items-center justify-center">
-                  {dosen.nidn}
-                </Grid>
-                <Grid size={4} className="border-l-2 border-white max-w-full text-center flex items-center justify-center">
-                  {dosen.name}
-                </Grid>
-                <Grid size={4} className="border-l-2 border-white max-w-full text-center flex items-center justify-center">
-                  {dosen.dosenPengajar}
-                </Grid>
-                <Grid size={4} className="border-l-2 border-white max-w-full text-center flex items-center justify-center">
-                  <Button className="p-1 " size="small" variant="contained" color="success" onClick={() => handleClickOpenDialog(dosen)}>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 rounded-md shadow-sm overflow-hidden">
+            <div className="w-full p-2 text-center flex items-center justify-center border-b-2 border-gray-300">
+              <div className="w-full max-w-[33.33%] text-center flex items-center justify-center text-gray-600 font-medium">NIDN</div>
+              <div className="w-full max-w-[33.33%] text-center flex items-center justify-center text-gray-600 font-medium">Nama Dosen</div>
+              <div className="w-full max-w-[33.33%] text-center flex items-center justify-center text-gray-600 font-medium">Dosen Pengajar</div>
+              <div className="w-full max-w-[33.33%] text-center flex items-center justify-center text-gray-600 font-medium">Action</div>
+            </div>
+
+            {currentDosenData.map((dosen) => (
+              <motion.div
+                key={dosen.id}
+                className="p-2 w-full text-center flex items-center justify-center hover:bg-gray-200 transition-all"
+                whileHover={{ scale: 1.05 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="w-full max-w-[33.33%] text-center flex items-center justify-center text-gray-800">{dosen.nidn}</div>
+                <div className="w-full max-w-[33.33%] text-center flex items-center justify-center text-gray-800">{dosen.name}</div>
+                <div className="w-full max-w-[33.33%] text-center flex items-center justify-center text-gray-800">{dosen.dosenPengajar}</div>
+                <div className="w-full max-w-[33.33%] text-center flex items-center justify-center">
+                  <Button className="p-1" variant="contained" color="primary" onClick={() => handleClickOpenDialog(dosen)}>
                     Memilih
                   </Button>
-                </Grid>
-              </Grid>
+                </div>
+              </motion.div>
             ))}
-          </Grid>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="flex justify-center mt-4">
+            <Button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+              Prev
+            </Button>
+            <span className="mx-4">{`Page ${currentPage} of ${totalPages}`}</span>
+            <Button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+              Next
+            </Button>
+          </div>
 
           <Dialog open={openDialog} TransitionComponent={Transition} keepMounted onClose={handleCloseDialog} aria-describedby="alert-dialog-slide-description">
             <DialogTitle>{"Apakah Anda sudah yakin?"}</DialogTitle>
@@ -187,9 +218,9 @@ const PilihDosenPembimbing = () => {
               </Button>
             </DialogActions>
           </Dialog>
-        </div>
+        </motion.div>
       )}
-    </main>
+    </motion.main>
   );
 };
 
