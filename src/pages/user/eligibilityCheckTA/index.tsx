@@ -13,6 +13,7 @@ import AlertKelayakanSuccess from "@/utils/AlertKelayakanSuccess";
 import AlertKelayakanInfo from "@/utils/AlertKelayakanInfo";
 import AlertFilledInfo from "@/utils/AlertFilledInfo";
 import { useSession } from "next-auth/react";
+import { uploadFileToFirebase } from "@/lib/firebase/service"; // Importing from storageService
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -60,32 +61,43 @@ const CekKelayakanTA = () => {
     setPreviewFile(null);
   };
 
-  // Fungsi untuk mengirimkan file
-  const handleSubmit = () => {
-    const formData = new FormData();
+  const handleSubmit = async () => {
+    try {
+      const fileUrls: string[] = [];
 
-    kartuBimbinganFiles.forEach((file) => formData.append("kartuBimbinganFiles[]", file));
-    suratFiles.forEach((file) => formData.append("suratFiles[]", file));
-    proposalTAFiles.forEach((file) => formData.append("proposalTAFiles[]", file));
+      // Assuming you need to provide a folder name as the second argument
+      for (const file of kartuBimbinganFiles) {
+        const folder = "kartuBimbingan"; // Specify the folder name here
+        const url = await uploadFileToFirebase(file, folder);
+        fileUrls.push(url);
+      }
 
-    fetch("/upload-endpoint", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Upload berhasil:", data);
-      })
-      .catch((error) => {
-        console.error("Terjadi kesalahan saat mengirim data:", error);
-      });
+      for (const file of suratFiles) {
+        const folder = "surat"; // Specify the folder name here
+        const url = await uploadFileToFirebase(file, folder);
+        fileUrls.push(url);
+      }
+
+      for (const file of proposalTAFiles) {
+        const folder = "proposalTA"; // Specify the folder name here
+        const url = await uploadFileToFirebase(file, folder);
+        fileUrls.push(url);
+      }
+
+      // Here you could send the file URLs to your server or database
+      console.log("Uploaded files:", fileUrls);
+
+      // Optionally handle the response after successful upload
+    } catch (error) {
+      console.error("Error uploading files:", error);
+    }
   };
 
   return (
     <main className="my-24 p-4">
       <Grid container spacing={2} className="bg-slate-500 p-4 rounded-md">
         <Grid size={3} className="bg-white p-4 rounded h-full text-center flex flex-col items-center justify-center">
-          <Container className=" rounded-full flex items-center justify-center">
+          <Container className="rounded-full flex items-center justify-center">
             <Image src="/images/profile.png" alt="profile" width={200} height={200} className="rounded-full border-4 border-black" />
           </Container>
           <Container className="mt-4 p-4 text-black font-semibold bg-gray-100 rounded-lg">
@@ -102,23 +114,24 @@ const CekKelayakanTA = () => {
         </Grid>
         <Grid size={9} container direction="column" spacing={2} className="bg-white p-4 rounded">
           <AlertFilledInfo message="Harap lengkapi data dengan benar dan upload sesuai kebutuhan. Silahkan cek kembali ketika melakukan upload agar tidak terjadi kesalahan!" />
+
           {/* Upload Sections */}
           {/* Upload Kartu Bimbingan */}
-          <Grid size={12} className="bg-gray-100 p-4 rounded ">
+          <Grid size={12} className="bg-gray-100 p-4 rounded">
             <Button component="label" variant="contained" fullWidth startIcon={<CloudUploadIcon />}>
               Upload Kartu Bimbingan
               <VisuallyHiddenInput type="file" onChange={(e) => handleFileUpload(e, "kartuBimbingan")} multiple accept=".pdf,.png,.jpg,.jpeg" />
             </Button>
             <Grid container spacing={2} className="rounded my-4">
-              <Grid size={4} className="bg-red-200 p-4 rounded ">
-                <Typography variant="h6" className="rounded-sm  xl:text-lg">
-                  Uploaded Files Kartu Bimbingan :
+              <Grid size={4} className="bg-red-200 p-4 rounded">
+                <Typography variant="h6" className="rounded-sm xl:text-lg">
+                  Uploaded Files Kartu Bimbingan:
                 </Typography>
               </Grid>
               <Grid size={8} className="bg-red-200 rounded flex items-center justify-center">
                 <Typography variant="h6" className="p-2">
                   {kartuBimbinganFiles.map((file, index) => (
-                    <Typography key={`kartu-${index}`} variant="subtitle1" className="cursor-pointer underline text-blue-500 " onClick={() => handleFileClick(file)}>
+                    <Typography key={`kartu-${index}`} variant="subtitle1" className="cursor-pointer underline text-blue-500" onClick={() => handleFileClick(file)}>
                       {file.name}
                     </Typography>
                   ))}
@@ -126,8 +139,9 @@ const CekKelayakanTA = () => {
               </Grid>
             </Grid>
           </Grid>
+
           {/* Upload Surat */}
-          <Grid size={12} className="bg-gray-100 p-4 rounded ">
+          <Grid size={12} className="bg-gray-100 p-4 rounded">
             <Button component="label" variant="contained" fullWidth startIcon={<CloudUploadIcon />}>
               Upload Surat
               <VisuallyHiddenInput type="file" onChange={(e) => handleFileUpload(e, "surat")} multiple accept=".pdf,.png,.jpg,.jpeg" />
@@ -135,13 +149,13 @@ const CekKelayakanTA = () => {
             <Grid container spacing={2} className="rounded my-4">
               <Grid size={4} className="bg-red-200 p-4 rounded">
                 <Typography variant="h6" className="rounded-sm">
-                  Uploaded Surat :
+                  Uploaded Surat:
                 </Typography>
               </Grid>
               <Grid size={8} className="bg-red-200 rounded flex items-center justify-center">
                 <Typography variant="h6" className="p-2">
                   {suratFiles.map((file, index) => (
-                    <Typography key={`surat-${index}`} variant="subtitle1" className="cursor-pointer underline text-blue-500 " onClick={() => handleFileClick(file)}>
+                    <Typography key={`surat-${index}`} variant="subtitle1" className="cursor-pointer underline text-blue-500" onClick={() => handleFileClick(file)}>
                       {file.name}
                     </Typography>
                   ))}
@@ -149,8 +163,9 @@ const CekKelayakanTA = () => {
               </Grid>
             </Grid>
           </Grid>
+
           {/* Upload Proposal TA */}
-          <Grid size={12} className="bg-gray-100 p-4 rounded ">
+          <Grid size={12} className="bg-gray-100 p-4 rounded">
             <Button component="label" variant="contained" fullWidth startIcon={<CloudUploadIcon />}>
               Upload Proposal
               <VisuallyHiddenInput type="file" onChange={(e) => handleFileUpload(e, "proposalTA")} multiple accept=".pdf,.png,.jpg,.jpeg" />
@@ -158,13 +173,13 @@ const CekKelayakanTA = () => {
             <Grid container spacing={2} className="rounded my-4">
               <Grid size={4} className="bg-red-200 p-4 rounded">
                 <Typography variant="h6" className="rounded-sm">
-                  Uploaded Proposal :
+                  Uploaded Proposal:
                 </Typography>
               </Grid>
               <Grid size={8} className="bg-red-200 rounded flex items-center justify-center">
                 <Typography variant="h6" className="p-2">
                   {proposalTAFiles.map((file, index) => (
-                    <Typography key={`proposal-${index}`} variant="subtitle1" className="cursor-pointer underline text-blue-500 " onClick={() => handleFileClick(file)}>
+                    <Typography key={`proposal-${index}`} variant="subtitle1" className="cursor-pointer underline text-blue-500" onClick={() => handleFileClick(file)}>
                       {file.name}
                     </Typography>
                   ))}

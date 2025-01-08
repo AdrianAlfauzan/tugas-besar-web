@@ -1,11 +1,10 @@
 import { collection, getDocs, where, query, doc, addDoc, getFirestore, updateDoc, setDoc, getDoc } from "firebase/firestore";
 import { app, db } from "@/lib/firebase/init";
+import { storage } from "@/lib/firebase/init"; // Pastikan path ini sesuai
 import { getSession } from "next-auth/react";
-// import bcrypt from "bcrypt";
-
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 const firestore = getFirestore(app);
 
-// Tipe generik untuk mengambil data
 export async function mengambilData<DataType>(namaCollection: string): Promise<DataType[]> {
   const snapshot = await getDocs(collection(firestore, namaCollection));
   const data = snapshot.docs.map((doc) => ({
@@ -33,7 +32,6 @@ type signUpCallback = (response: { status: boolean; message: string }) => void;
 
 export async function signUp(userData: { fullname: string; email: string; password: string; role?: string; nim: string; jurusan: string }, callback: signUpCallback) {
   try {
-    // Cek apakah email sudah terdaftar
     const emailQuery = query(collection(firestore, "users"), where("email", "==", userData.email));
     const emailSnapshot = await getDocs(emailQuery);
     const emailData = emailSnapshot.docs.map((doc) => ({
@@ -46,7 +44,6 @@ export async function signUp(userData: { fullname: string; email: string; passwo
       return;
     }
 
-    // Cek apakah NIM sudah terdaftar
     const nimQuery = query(collection(firestore, "users"), where("nim", "==", userData.nim));
     const nimSnapshot = await getDocs(nimQuery);
     const nimData = nimSnapshot.docs.map((doc) => ({
@@ -59,9 +56,6 @@ export async function signUp(userData: { fullname: string; email: string; passwo
       return;
     }
 
-    // Jika email dan NIM valid, tambahkan data pengguna baru
-    userData.password = userData.password; // Gantilah ini dengan hashing password jika diperlukan
-    userData.role = "user"; // Default role untuk user baru
     await addDoc(collection(firestore, "users"), userData);
     callback({ status: true, message: "Register berhasil" });
   } catch (error: any) {
@@ -84,7 +78,6 @@ export async function signInWithGoogle(userData: any, callback: any) {
   console.log("Data from Firestore:", data);
 
   if (data.length > 0) {
-    // Jika user sudah ada, update data
     await updateDoc(doc(firestore, "users", data[0].id), userData)
       .then(() => {
         callback({ status: true, message: "User updated successfully", data: userData });
@@ -94,7 +87,6 @@ export async function signInWithGoogle(userData: any, callback: any) {
         callback({ status: false, message: "Failed to update user", data: userData });
       });
   } else {
-    // Jika user belum ada, tambahkan data baru
     userData.role = "user";
     await addDoc(collection(firestore, "users"), userData)
       .then(() => {
@@ -113,20 +105,16 @@ interface PendaftaranData {
   statusPembayaran: string;
 }
 
-// Fungsi untuk menyimpan data pendaftaran
 export const savePendaftaran = async (data: PendaftaranData) => {
   try {
-    // Ambil session dari NextAuth untuk mendapatkan informasi user
     const session: any = await getSession();
 
     if (!session) {
       throw new Error("User belum terautentikasi. Silakan login.");
     }
 
-    // Ambil koleksi user dari Firestore
     const userCollection = collection(firestore, "users");
 
-    // Cari dokumen berdasarkan nim user yang sedang login
     const q = query(userCollection, where("nim", "==", session.user?.nim));
     const snapshot = await getDocs(q);
 
@@ -134,16 +122,12 @@ export const savePendaftaran = async (data: PendaftaranData) => {
       throw new Error("Dokumen user tidak ditemukan.");
     }
 
-    // Ambil userId dari document ID yang ditemukan
     const userId = snapshot.docs[0].id;
 
-    // Referensi dokumen pendaftaran berdasarkan userId
     const docRef = doc(db, "pendaftaran", userId);
 
-    // Ambil dokumen pendaftaran
     const docSnap = await getDoc(docRef);
 
-    // Gabungkan data lama dengan data baru jika dokumen sudah ada
     const updatedData = docSnap.exists()
       ? {
           ...docSnap.data(),
@@ -159,12 +143,178 @@ export const savePendaftaran = async (data: PendaftaranData) => {
           nim: session?.user?.nim,
         };
 
-    // Simpan data ke Firestore
     await setDoc(docRef, updatedData, { merge: true });
 
     return { success: true };
   } catch (error: any) {
     console.error("Gagal menyimpan data ke Firestore:", error);
     return { success: false, error: error.message };
+  }
+};
+
+export const pilihDosen = async (
+  nidnDosen: string, // Ganti parameter 'dosenPengajar' menjadi 'nidnDosen'
+  callback: (response: { status: boolean; message: string; data?: any }) => void
+): Promise<void> => {
+  try {
+    // Mengambil sesi pengguna
+    const session: any = await getSession();
+    console.log("Sesi pengguna saat ini:", session);
+
+    if (!session) {
+      throw new Error("User belum terautentikasi. Silakan login.");
+    }
+
+    // Mencari dosen berdasarkan nidn
+    const q = query(collection(firestore, "admin"), where("nidn", "==", nidnDosen));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      callback({
+        status: false,
+        message: "Dosen dengan NIDN tersebut tidak ditemukan",
+      });
+      return;
+    }
+
+    const dosenData: any = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    const dosenPilih = dosenData[0];
+
+    // Mencari data pengguna berdasarkan nim
+    const userCollection = collection(firestore, "users");
+    const qUser = query(userCollection, where("nim", "==", session.user?.nim));
+    const snapshotUser = await getDocs(qUser);
+    console.log("Snapshot pengguna:", snapshotUser);
+
+    if (snapshotUser.empty) {
+      throw new Error("Dokumen user tidak ditemukan.");
+    }
+
+    const userId = snapshotUser.docs[0].id;
+    const userRef = doc(firestore, "users", userId);
+    const userDocSnap = await getDoc(userRef);
+
+    const updatedUserData = userDocSnap.exists()
+      ? {
+          ...userDocSnap.data(),
+          pilihDosenPembimbing: {
+            nidnDosen: dosenPilih.nidn,
+            namaDosen: dosenPilih.fullname,
+            dosenPengajar: dosenPilih.dosenPengajar,
+          },
+        }
+      : {
+          pilihDosenPembimbing: {
+            nidnDosen: dosenPilih.nidn,
+            namaDosen: dosenPilih.fullname,
+            dosenPengajar: dosenPilih.dosenPengajar,
+          },
+        };
+
+    // Periksa apakah dosen yang dipilih sudah ada pada data user
+    if (userDocSnap.exists() && userDocSnap.data()?.pilihDosenPembimbing?.nidnDosen === nidnDosen) {
+      callback({
+        status: false,
+        message: "Dosen dengan NIDN tersebut sudah dipilih.",
+      });
+      return;
+    }
+
+    // Menyimpan data dosen yang dipilih ke Firestore
+    await setDoc(userRef, updatedUserData, { merge: true });
+    console.log("Data dosen berhasil disimpan untuk pengguna:", session.user?.nim);
+
+    callback({
+      status: true,
+      message: "Dosen berhasil dipilih dan data disimpan.",
+      data: dosenData,
+    });
+  } catch (error: any) {
+    console.error("Gagal memilih dosen atau menyimpan data:", error);
+    callback({
+      status: false,
+      message: "Gagal memilih dosen atau menyimpan data.",
+    });
+  }
+};
+
+export async function updateProfile(nim: string, updatedData: any) {
+  if (!nim) {
+    throw new Error("NIM is required for updating profile");
+  }
+
+  if (!updatedData || Object.keys(updatedData).length === 0) {
+    throw new Error("No data provided for update");
+  }
+
+  try {
+    // Cari dokumen user berdasarkan NIM
+    const q = query(collection(firestore, "users"), where("nim", "==", nim));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      return { success: false, message: "User with the specified NIM not found" };
+    }
+
+    // Ambil dokumen pertama yang ditemukan
+    const userDoc = snapshot.docs[0];
+    const userRef = doc(firestore, "users", userDoc.id);
+
+    // Update dokumen
+    await updateDoc(userRef, updatedData);
+
+    return { success: true, message: "Profile updated successfully!" };
+  } catch (error: any) {
+    console.error("Error updating profile: ", error);
+
+    // Pastikan error yang dilempar relevan
+    return { success: false, message: error.message || "Failed to update profile." };
+  }
+}
+
+export const uploadFileToFirebase = (file: File, folder: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const storageRef = ref(storage, `${folder}/${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Upload is ${progress}% done`);
+      },
+      (error) => {
+        console.error("Error uploading file:", error);
+        reject(error);
+      },
+      async () => {
+        try {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          console.log("File available at:", downloadURL);
+          resolve(downloadURL);
+        } catch (error) {
+          console.error("Error getting download URL:", error);
+          reject(error);
+        }
+      }
+    );
+  });
+};
+
+export const fetchPelaksanaanSeminar = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "pelaksanaanSeminar"));
+    const data: any[] = [];
+    querySnapshot.forEach((doc) => {
+      data.push({ id: doc.id, ...doc.data() });
+    });
+    return data;
+  } catch (error) {
+    console.error("Error fetching documents: ", error);
+    throw new Error("Error fetching documents");
   }
 };

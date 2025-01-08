@@ -80,7 +80,7 @@ const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }: any) {
-      const userSessionProperties = ["email", "fullname", "nim", "jurusan", "image", "role", "isGoogleLogin"];
+      const userSessionProperties = ["email", "fullname", "nim", "jurusan", "image", "password", "role", "isGoogleLogin"];
       userSessionProperties.forEach((property) => {
         if (property in token) {
           session.user[property] = token[property] || "Tidak ada Data";

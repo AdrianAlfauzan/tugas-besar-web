@@ -6,7 +6,7 @@ export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   // Rute yang memerlukan login
-  const userRoutes = ["/api/ApiGetUsers", "/user/activity/Pendaftaran", "/user/activity/PilihDosenPembimbing", "/user/eligibilityCheckTA", "/user/seminar"];
+  const userRoutes = ["/api/ApiGetUsers", "/user/activity/Pendaftaran", "/user/activity/PilihDosenPembimbing", "/user/eligibilityCheckTA", "/user/seminar", "/user/profile"];
 
   // Mendapatkan token
   const token = await getToken({
@@ -28,5 +28,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/ApiGetUsers", "/user/activity/Pendaftaran", "/user/activity/PilihDosenPembimbing", "/user/eligibilityCheckTA", "/user/seminar"], // Halaman yang diproteksi
+  matcher: ["/api/ApiGetUsers", "/user/activity/Pendaftaran", "/user/activity/PilihDosenPembimbing", "/user/eligibilityCheckTA", "/user/seminar", "/user/profile"], // Halaman yang diproteksi
 };
