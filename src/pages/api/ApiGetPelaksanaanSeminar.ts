@@ -3,6 +3,7 @@ import { fetchPelaksanaanSeminar } from "@/lib/firebase/service"; // Import serv
 
 // Tipe untuk data pelaksanaanSeminar
 type PelaksanaanSeminar = {
+  id: string; // Tambahkan id dokumen
   deskripsiPengumuman: string;
   judulPengumuman: string;
   komentar: string;
@@ -16,25 +17,43 @@ type PelaksanaanSeminar = {
 type ResponseData = {
   status: boolean;
   statusCode: number;
-  dataPelaksanaanSeminar: PelaksanaanSeminar[]; // Ganti dengan tipe yang sesuai
+  message?: string;
+  dataPelaksanaanSeminar?: PelaksanaanSeminar[];
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ResponseData>) {
+  if (req.method !== "GET") {
+    // Validasi metode HTTP
+    return res.status(405).json({
+      status: false,
+      statusCode: 405,
+      message: "Method not allowed. Only GET requests are supported.",
+    });
+  }
+
   try {
     const data = await fetchPelaksanaanSeminar();
-    console.log("Data:", data); // Logging data yang diterima dari Firestore
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        status: false,
+        statusCode: 404,
+        message: "No seminar data found.",
+      });
+    }
 
     res.status(200).json({
       status: true,
       statusCode: 200,
       dataPelaksanaanSeminar: data,
     });
-  } catch (error) {
-    console.error("Error fetching pelaksanaanSeminar:", error);
+  } catch (error: any) {
+    console.error("Error fetching pelaksanaanSeminar:", error.message);
+
     res.status(500).json({
       status: false,
       statusCode: 500,
-      dataPelaksanaanSeminar: [],
+      message: "Internal server error. Failed to fetch seminar data.",
     });
   }
 }

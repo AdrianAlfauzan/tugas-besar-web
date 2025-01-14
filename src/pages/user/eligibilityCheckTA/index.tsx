@@ -1,95 +1,67 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState } from "react";
 import Grid from "@mui/material/Grid2";
 import Container from "@mui/material/Container";
 import Image from "next/image";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
-import { styled } from "@mui/material/styles";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-import AlertKelayakanSuccess from "@/utils/AlertKelayakanSuccess";
 import AlertKelayakanInfo from "@/utils/AlertKelayakanInfo";
-import AlertFilledInfo from "@/utils/AlertFilledInfo";
-import { useSession } from "next-auth/react";
-import { uploadFileToFirebase } from "@/lib/firebase/service"; // Importing from storageService
+import AlertKelayakanSuccess from "@/utils/AlertKelayakanSuccess";
+import { useSession, getSession } from "next-auth/react";
 
-const VisuallyHiddenInput = styled("input")({
-  clip: "rect(0 0 0 0)",
-  clipPath: "inset(50%)",
-  height: 1,
-  overflow: "hidden",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  whiteSpace: "nowrap",
-  width: 1,
-});
+import { saveCekKelayakanTA } from "@/lib/firebase/service";
 
 const CekKelayakanTA = () => {
-  const [kartuBimbinganFiles, setKartuBimbinganFiles] = useState<File[]>([]);
-  const [suratFiles, setSuratFiles] = useState<File[]>([]);
-  const [proposalTAFiles, setProposalTAFiles] = useState<File[]>([]);
-  const [previewFile, setPreviewFile] = useState<File | null>(null);
   const { data }: any = useSession();
-
-  const handleFileUpload = (event: ChangeEvent<HTMLInputElement>, uploadType: "kartuBimbingan" | "surat" | "proposalTA") => {
-    if (event.target.files && event.target.files.length > 0) {
-      const files = Array.from(event.target.files);
-      switch (uploadType) {
-        case "kartuBimbingan":
-          setKartuBimbinganFiles((prev) => [...prev, ...files]);
-          break;
-        case "surat":
-          setSuratFiles((prev) => [...prev, ...files]);
-          break;
-        case "proposalTA":
-          setProposalTAFiles((prev) => [...prev, ...files]);
-          break;
-        default:
-          break;
-      }
-    }
-  };
-
-  const handleFileClick = (file: File) => {
-    setPreviewFile(file);
-  };
-
-  const handleClosePreview = () => {
-    setPreviewFile(null);
-  };
+  const [kartuBimbingan, setKartuBimbingan] = useState("");
+  const [surat, setSurat] = useState("");
+  const [proposalTA, setProposalTA] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isKelayakanValid, setIsKelayakanValid] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // Tambahkan state untuk successMessage
 
   const handleSubmit = async () => {
-    try {
-      const fileUrls: string[] = [];
+    if (kartuBimbingan && surat && proposalTA) {
+      setIsLoading(true);
+      try {
+        const session: any = await getSession();
 
-      // Assuming you need to provide a folder name as the second argument
-      for (const file of kartuBimbinganFiles) {
-        const folder = "kartuBimbingan"; // Specify the folder name here
-        const url = await uploadFileToFirebase(file, folder);
-        fileUrls.push(url);
+        if (!session || !session.user || !session.user.nim) {
+          setErrorMessage("User ID tidak ditemukan. Pastikan Anda sudah login.");
+          setIsLoading(false);
+          return;
+        }
+
+        const nim = session.user.nim;
+
+        const result = await saveCekKelayakanTA({
+          kartuBimbingan,
+          surat,
+          proposalTA,
+          nim,
+        });
+
+        if (result.success) {
+          setIsKelayakanValid(true);
+          setSuccessMessage("Data cek kelayakan TA berhasil dikirim!"); // Menyimpan success message
+          setErrorMessage(""); // Reset error message
+        } else {
+          setIsKelayakanValid(false);
+          setSuccessMessage(""); // Reset success message jika gagal
+          setErrorMessage(result.error || "Gagal mengirimkan data ke Firebase.");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        setErrorMessage("Gagal mengirimkan data ke Firebase.");
+        setSuccessMessage(""); // Reset success message saat ada error
+      } finally {
+        setIsLoading(false);
       }
-
-      for (const file of suratFiles) {
-        const folder = "surat"; // Specify the folder name here
-        const url = await uploadFileToFirebase(file, folder);
-        fileUrls.push(url);
-      }
-
-      for (const file of proposalTAFiles) {
-        const folder = "proposalTA"; // Specify the folder name here
-        const url = await uploadFileToFirebase(file, folder);
-        fileUrls.push(url);
-      }
-
-      // Here you could send the file URLs to your server or database
-      console.log("Uploaded files:", fileUrls);
-
-      // Optionally handle the response after successful upload
-    } catch (error) {
-      console.error("Error uploading files:", error);
+    } else {
+      setIsKelayakanValid(false);
+      setSuccessMessage(""); // Reset success message saat input tidak lengkap
+      setErrorMessage("Harap lengkapi semua input.");
     }
   };
 
@@ -112,103 +84,47 @@ const CekKelayakanTA = () => {
             <AlertKelayakanSuccess />
           </Container>
         </Grid>
+
         <Grid size={9} container direction="column" spacing={2} className="bg-white p-4 rounded">
-          <AlertFilledInfo message="Harap lengkapi data dengan benar dan upload sesuai kebutuhan. Silahkan cek kembali ketika melakukan upload agar tidak terjadi kesalahan!" />
+          {/* Error Message */}
+          {errorMessage && <Container className="mb-4 p-4 bg-red-100 rounded-md text-red-800">{errorMessage}</Container>}
 
-          {/* Upload Sections */}
-          {/* Upload Kartu Bimbingan */}
+          {/* Success Message */}
+          {successMessage && <Container className="mb-4 p-4 bg-green-100 rounded-md text-green-800">{successMessage}</Container>}
+
+          {/* Kelayakan Valid */}
+          {isKelayakanValid && <Container className="mb-4 p-4 bg-blue-100 rounded-md text-blue-800">Kelayakan TA Anda sudah valid.</Container>}
+
+          {/* Input Sections */}
           <Grid size={12} className="bg-gray-100 p-4 rounded">
-            <Button component="label" variant="contained" fullWidth startIcon={<CloudUploadIcon />}>
-              Upload Kartu Bimbingan
-              <VisuallyHiddenInput type="file" onChange={(e) => handleFileUpload(e, "kartuBimbingan")} multiple accept=".pdf,.png,.jpg,.jpeg" />
-            </Button>
-            <Grid container spacing={2} className="rounded my-4">
-              <Grid size={4} className="bg-red-200 p-4 rounded">
-                <Typography variant="h6" className="rounded-sm xl:text-lg">
-                  Uploaded Files Kartu Bimbingan:
-                </Typography>
-              </Grid>
-              <Grid size={8} className="bg-red-200 rounded flex items-center justify-center">
-                <Typography variant="h6" className="p-2">
-                  {kartuBimbinganFiles.map((file, index) => (
-                    <Typography key={`kartu-${index}`} variant="subtitle1" className="cursor-pointer underline text-blue-500" onClick={() => handleFileClick(file)}>
-                      {file.name}
-                    </Typography>
-                  ))}
-                </Typography>
-              </Grid>
-            </Grid>
+            <Typography variant="h6" className="mb-2">
+              Input Kartu Bimbingan
+            </Typography>
+            <input type="text" value={kartuBimbingan} onChange={(e) => setKartuBimbingan(e.target.value)} className="w-full bg-white p-4 rounded" />
           </Grid>
 
-          {/* Upload Surat */}
           <Grid size={12} className="bg-gray-100 p-4 rounded">
-            <Button component="label" variant="contained" fullWidth startIcon={<CloudUploadIcon />}>
-              Upload Surat
-              <VisuallyHiddenInput type="file" onChange={(e) => handleFileUpload(e, "surat")} multiple accept=".pdf,.png,.jpg,.jpeg" />
-            </Button>
-            <Grid container spacing={2} className="rounded my-4">
-              <Grid size={4} className="bg-red-200 p-4 rounded">
-                <Typography variant="h6" className="rounded-sm">
-                  Uploaded Surat:
-                </Typography>
-              </Grid>
-              <Grid size={8} className="bg-red-200 rounded flex items-center justify-center">
-                <Typography variant="h6" className="p-2">
-                  {suratFiles.map((file, index) => (
-                    <Typography key={`surat-${index}`} variant="subtitle1" className="cursor-pointer underline text-blue-500" onClick={() => handleFileClick(file)}>
-                      {file.name}
-                    </Typography>
-                  ))}
-                </Typography>
-              </Grid>
-            </Grid>
+            <Typography variant="h6" className="mb-2">
+              Input Surat
+            </Typography>
+            <input type="text" value={surat} onChange={(e) => setSurat(e.target.value)} className="w-full bg-white p-4 rounded" />
           </Grid>
 
-          {/* Upload Proposal TA */}
           <Grid size={12} className="bg-gray-100 p-4 rounded">
-            <Button component="label" variant="contained" fullWidth startIcon={<CloudUploadIcon />}>
-              Upload Proposal
-              <VisuallyHiddenInput type="file" onChange={(e) => handleFileUpload(e, "proposalTA")} multiple accept=".pdf,.png,.jpg,.jpeg" />
-            </Button>
-            <Grid container spacing={2} className="rounded my-4">
-              <Grid size={4} className="bg-red-200 p-4 rounded">
-                <Typography variant="h6" className="rounded-sm">
-                  Uploaded Proposal:
-                </Typography>
-              </Grid>
-              <Grid size={8} className="bg-red-200 rounded flex items-center justify-center">
-                <Typography variant="h6" className="p-2">
-                  {proposalTAFiles.map((file, index) => (
-                    <Typography key={`proposal-${index}`} variant="subtitle1" className="cursor-pointer underline text-blue-500" onClick={() => handleFileClick(file)}>
-                      {file.name}
-                    </Typography>
-                  ))}
-                </Typography>
-              </Grid>
-            </Grid>
+            <Typography variant="h6" className="mb-2">
+              Input Proposal TA
+            </Typography>
+            <input type="text" value={proposalTA} onChange={(e) => setProposalTA(e.target.value)} className="w-full bg-white p-4 rounded" />
           </Grid>
 
           {/* Submit Button */}
           <Grid size={12}>
-            <Button variant="contained" color="primary" fullWidth onClick={handleSubmit}>
-              Submit All Files
+            <Button variant="contained" color="primary" fullWidth onClick={handleSubmit} disabled={isLoading}>
+              {isLoading ? "Loading..." : "Submit"}
             </Button>
           </Grid>
         </Grid>
       </Grid>
-
-      {/* Preview Dialog */}
-      <Dialog open={!!previewFile} onClose={handleClosePreview} maxWidth="lg" fullWidth>
-        <DialogContent className="flex items-center justify-center">
-          {previewFile?.type.startsWith("image/") ? (
-            <Image src={URL.createObjectURL(previewFile)} alt={previewFile.name} width={10} height={10} className="w-[50%] h-[50%]" />
-          ) : previewFile?.type === "application/pdf" ? (
-            <iframe src={URL.createObjectURL(previewFile)} title={previewFile.name} className="w-full h-[80vh]" frameBorder="0" />
-          ) : (
-            <Typography variant="body1">Unsupported file format.</Typography>
-          )}
-        </DialogContent>
-      </Dialog>
     </main>
   );
 };

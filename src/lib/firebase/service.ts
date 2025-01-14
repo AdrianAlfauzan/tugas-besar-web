@@ -1,8 +1,6 @@
 import { collection, getDocs, where, query, doc, addDoc, getFirestore, updateDoc, setDoc, getDoc } from "firebase/firestore";
 import { app, db } from "@/lib/firebase/init";
-import { storage } from "@/lib/firebase/init"; // Pastikan path ini sesuai
 import { getSession } from "next-auth/react";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 const firestore = getFirestore(app);
 
 export async function mengambilData<DataType>(namaCollection: string): Promise<DataType[]> {
@@ -152,6 +150,52 @@ export const savePendaftaran = async (data: PendaftaranData) => {
   }
 };
 
+interface CekKelayakanData {
+  kartuBimbingan: string;
+  surat: string;
+  proposalTA: string;
+  nim: string;
+}
+
+export const saveCekKelayakanTA = async (data: CekKelayakanData) => {
+  try {
+    const session: any = await getSession();
+
+    if (!session) {
+      throw new Error("User belum terautentikasi. Silakan login.");
+    }
+
+    const userCollection = collection(db, "users");
+
+    const q = query(userCollection, where("nim", "==", session.user?.nim));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      throw new Error("Dokumen user tidak ditemukan.");
+    }
+
+    const nim = snapshot.docs[0].id;
+
+    const docRef = doc(db, "cekKelayakanTA", nim); // Koleksi khusus untuk cek kelayakan TA
+
+    const docSnap = await getDoc(docRef);
+
+    const updatedData = docSnap.exists()
+      ? {
+          ...docSnap.data(),
+          ...data,
+        }
+      : data;
+
+    await setDoc(docRef, updatedData, { merge: true });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Gagal menyimpan data ke Firestore:", error);
+    return { success: false, error: error.message };
+  }
+};
+
 export const pilihDosen = async (
   nidnDosen: string, // Ganti parameter 'dosenPengajar' menjadi 'nidnDosen'
   callback: (response: { status: boolean; message: string; data?: any }) => void
@@ -275,35 +319,6 @@ export async function updateProfile(nim: string, updatedData: any) {
     return { success: false, message: error.message || "Failed to update profile." };
   }
 }
-
-export const uploadFileToFirebase = (file: File, folder: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const storageRef = ref(storage, `${folder}/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(`Upload is ${progress}% done`);
-      },
-      (error) => {
-        console.error("Error uploading file:", error);
-        reject(error);
-      },
-      async () => {
-        try {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          console.log("File available at:", downloadURL);
-          resolve(downloadURL);
-        } catch (error) {
-          console.error("Error getting download URL:", error);
-          reject(error);
-        }
-      }
-    );
-  });
-};
 
 export const fetchPelaksanaanSeminar = async () => {
   try {
